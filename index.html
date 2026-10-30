@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Math Heroes: Save the City</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky:#1b2a6b; --sky2:#2f49b5; --yellow:#ffd23f; --red:#e63946; --blue:#2a9df4;
+  --green:#2ec27e; --ink:#14142b; --white:#fffdf5; --purple:#7b2cbf;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Nunito',system-ui,sans-serif;color:var(--ink);
+  background:radial-gradient(circle at 50% 0%,var(--sky2),var(--sky) 70%);
+  min-height:100vh;overflow-x:hidden;
+}
+.city{position:fixed;left:0;right:0;bottom:0;height:160px;z-index:0;pointer-events:none}
+.stars-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(2px 2px at 10% 20%,#fff8,transparent),radial-gradient(2px 2px at 80% 15%,#fff8,transparent),
+  radial-gradient(1.5px 1.5px at 30% 40%,#fff6,transparent),radial-gradient(2px 2px at 60% 30%,#fff7,transparent),
+  radial-gradient(1.5px 1.5px at 90% 45%,#fff6,transparent),radial-gradient(2px 2px at 45% 10%,#fff8,transparent)}
+main{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:20px 16px 180px}
+h1,.comic{font-family:'Bangers',cursive;letter-spacing:2px}
+.screen{display:none}
+.screen.active{display:block;animation:pop .35s ease}
+@keyframes pop{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+
+.title{text-align:center;color:var(--yellow);font-size:clamp(48px,10vw,88px);line-height:.95;
+  text-shadow:4px 4px 0 var(--red),8px 8px 0 var(--ink);transform:rotate(-2deg);margin:10px 0 6px}
+.subtitle{text-align:center;color:#fff;font-size:20px;margin-bottom:22px}
+.panel{background:var(--white);border:5px solid var(--ink);border-radius:22px;box-shadow:8px 8px 0 var(--ink);padding:22px;margin-bottom:22px}
+.panel h2{font-family:'Bangers';font-size:32px;letter-spacing:1.5px;margin-bottom:12px;color:var(--purple)}
+.grid{display:grid;gap:14px}
+.heroes{grid-template-columns:repeat(4,1fr)}
+.modes{grid-template-columns:repeat(2,1fr)}
+@media(max-width:600px){.heroes{grid-template-columns:repeat(2,1fr)}.modes{grid-template-columns:1fr}}
+.pick{background:#fff;border:4px solid var(--ink);border-radius:18px;padding:12px 8px;cursor:pointer;text-align:center;
+  font:800 18px 'Nunito';transition:transform .12s,box-shadow .12s;box-shadow:4px 4px 0 var(--ink)}
+.pick:hover{transform:translateY(-3px)}
+.pick.sel{background:var(--yellow);box-shadow:4px 4px 0 var(--red);transform:translateY(-3px)}
+.pick svg{width:80px;height:80px;display:block;margin:0 auto 4px}
+.pick small{display:block;font-weight:700;font-size:14px;color:#555}
+.big-btn{display:block;margin:0 auto;font-family:'Bangers';font-size:40px;letter-spacing:2px;color:#fff;background:var(--red);
+  border:5px solid var(--ink);border-radius:20px;padding:12px 48px;box-shadow:6px 6px 0 var(--ink);cursor:pointer;transition:transform .1s}
+.big-btn:hover{transform:scale(1.05)}
+.big-btn:active{transform:translate(3px,3px);box-shadow:3px 3px 0 var(--ink)}
+
+/* battle */
+.hud{display:flex;justify-content:space-between;align-items:center;color:#fff;font-weight:900;font-size:20px;margin-bottom:28px;gap:10px;flex-wrap:wrap}
+.hud .pill{background:#0006;border:3px solid #fff;border-radius:999px;padding:6px 16px}
+.icon-btn{background:var(--yellow);border:3px solid var(--ink);border-radius:999px;padding:6px 14px;font:900 16px 'Nunito';cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+.arena{display:flex;justify-content:space-between;align-items:flex-end;position:relative;height:190px;margin-bottom:8px}
+.fighter{width:150px;text-align:center;position:relative}
+.fighter svg{width:140px;height:150px}
+.hp{height:20px;background:#0005;border:3px solid #fff;border-radius:999px;overflow:hidden;margin-top:4px}
+.hp>div{height:100%;background:var(--green);transition:width .5s}
+.villain .hp>div{background:var(--red)}
+.name{color:#fff;font-family:'Bangers';font-size:22px;letter-spacing:1px}
+.blast{position:absolute;top:60px;left:150px;width:40px;height:40px;border-radius:50%;
+  background:radial-gradient(circle,#fff,var(--yellow) 40%,#ff8c00);box-shadow:0 0 30px var(--yellow);opacity:0}
+.blast.go{animation:shoot .55s ease-in forwards}
+@keyframes shoot{0%{opacity:1;transform:translateX(0) scale(.5)}100%{opacity:1;transform:translateX(calc(var(--dist)*1px)) scale(1.6)}}
+.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px) rotate(-5deg)}40%{transform:translateX(12px) rotate(5deg)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
+.bounce{animation:bounce .5s}
+@keyframes bounce{50%{transform:translateY(-24px)}}
+.boom{position:absolute;right:20px;top:20px;font-family:'Bangers';font-size:54px;color:var(--yellow);
+  text-shadow:3px 3px 0 var(--red),5px 5px 0 var(--ink);opacity:0;pointer-events:none}
+.boom.show{animation:boom .8s forwards}
+@keyframes boom{0%{opacity:0;transform:scale(.3) rotate(-15deg)}30%{opacity:1;transform:scale(1.2) rotate(8deg)}100%{opacity:0;transform:scale(1) rotate(0)}}
+
+.question{text-align:center}
+.problem{font-family:'Bangers';font-size:clamp(64px,14vw,110px);letter-spacing:4px;color:var(--ink);line-height:1}
+.problem .q{color:var(--red)}
+.visual{min-height:56px;display:flex;justify-content:center;align-items:center;gap:18px;flex-wrap:wrap;margin:10px 0 4px}
+.dots{display:flex;flex-wrap:wrap;gap:5px;max-width:190px;justify-content:center}
+.dot{width:22px;height:22px;border-radius:50%;background:var(--blue);border:2px solid var(--ink)}
+.dot.b{background:var(--yellow)}
+.dot.x{background:#ccc;position:relative}
+.dot.x::after{content:'';position:absolute;left:-3px;right:-3px;top:8px;height:3px;background:var(--red);transform:rotate(-45deg)}
+.op{font-family:'Bangers';font-size:40px}
+.answers{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}
+@media(max-width:600px){.answers{grid-template-columns:repeat(2,1fr)}}
+.ans{font-family:'Bangers';font-size:56px;padding:10px 0;border:5px solid var(--ink);border-radius:20px;cursor:pointer;
+  box-shadow:5px 5px 0 var(--ink);color:#fff;transition:transform .1s}
+.ans:nth-child(1){background:var(--blue)}.ans:nth-child(2){background:var(--green)}
+.ans:nth-child(3){background:var(--purple)}.ans:nth-child(4){background:#ff8c00}
+.ans:hover{transform:translateY(-4px)}
+.ans:disabled{opacity:.35;cursor:default;transform:none}
+.ans.right{background:var(--yellow)!important;color:var(--ink);opacity:1}
+.feedback{min-height:40px;text-align:center;font-weight:900;font-size:24px;margin-top:14px}
+.feedback.good{color:var(--green)}.feedback.try{color:var(--red)}
+
+/* win */
+.win{text-align:center}
+.medal{font-family:'Bangers';font-size:72px;color:var(--yellow);text-shadow:4px 4px 0 var(--red),7px 7px 0 var(--ink)}
+.starrow{font-size:64px;color:var(--yellow);letter-spacing:8px;text-shadow:3px 3px 0 var(--ink);margin:6px 0}
+.starrow .off{color:#ffffff40}
+.win p{font-size:22px;font-weight:800;margin:8px 0 20px}
+.row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.row .big-btn{margin:0;font-size:30px;padding:10px 28px}
+.row .alt{background:var(--blue)}
+.badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.badge{background:var(--yellow);border:3px solid var(--ink);border-radius:999px;padding:4px 12px;font-weight:900;font-size:15px}
+.confetti{position:fixed;top:-20px;width:12px;height:18px;z-index:5;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+.parent{color:#fffc;text-align:center;font-size:14px;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="stars-bg"></div>
+<svg class="city" viewBox="0 0 1200 160" preserveAspectRatio="none" aria-hidden="true">
+  <path fill="#101a45" d="M0 160V70h60V40h50v50h40V20h70v70h30V60h60v100zM330 160V50h80v30h40V10h60v90h50V60h70v100zM700 160V30h70v40h50V80h40V40h80v120zM960 160V60h60V20h60v60h40V50h80v110z"/>
+  <g fill="#ffd23f99"><rect x="80" y="55" width="10" height="10"/><rect x="170" y="35" width="10" height="10"/><rect x="190" y="65" width="10" height="10"/><rect x="460" y="30" width="10" height="10"/><rect x="480" y="60" width="10" height="10"/><rect x="720" y="50" width="10" height="10"/><rect x="900" y="60" width="10" height="10"/><rect x="1040" y="40" width="10" height="10"/><rect x="1150" y="70" width="10" height="10"/></g>
+</svg>
+
+<main>
+  <!-- START -->
+  <section id="start" class="screen active">
+    <h1 class="title">MATH HEROES!</h1>
+    <p class="subtitle">Dr. Minus is attacking the city. Solve math to power up and save the day.</p>
+
+    <div class="panel">
+      <h2>1. Pick your hero</h2>
+      <div class="grid heroes" id="heroPicks"></div>
+    </div>
+
+    <div class="panel">
+      <h2>2. Pick your mission</h2>
+      <div class="grid modes" id="modePicks"></div>
+    </div>
+
+    <button class="big-btn" id="goBtn">LET'S GO!</button>
+    <p class="parent">Tip: press "Read to me" to hear each problem read aloud.</p>
+  </section>
+
+  <!-- BATTLE -->
+  <section id="battle" class="screen">
+    <div class="hud">
+      <span class="pill" id="progress">Problem 1 of 10</span>
+      <span class="pill" id="starCount">★ 0</span>
+      <span>
+        <button class="icon-btn" id="speakBtn" aria-label="Read problem aloud">Read to me</button>
+        <button class="icon-btn" id="quitBtn">Home</button>
+      </span>
+    </div>
+    <div class="arena" id="arena">
+      <div class="fighter hero" id="heroBox"><div id="heroSvg"></div><div class="name" id="heroName">Hero</div><div class="hp"><div id="heroHp" style="width:100%"></div></div></div>
+      <div class="blast" id="blast"></div>
+      <div class="boom" id="boom">POW!</div>
+      <div class="fighter villain" id="villainBox"><div id="villainSvg"></div><div class="name">Dr. Minus</div><div class="hp"><div id="villainHp" style="width:100%"></div></div></div>
+    </div>
+    <div class="panel question">
+      <div class="problem" id="problem">3 + 4 = <span class="q">?</span></div>
+      <div class="visual" id="visual"></div>
+      <div class="answers" id="answers"></div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+  </section>
+
+  <!-- WIN -->
+  <section id="win" class="screen">
+    <div class="panel win">
+      <div class="medal" id="winTitle">CITY SAVED!</div>
+      <div id="winHero"></div>
+      <div class="starrow" id="winStars"></div>
+      <p id="winText"></p>
+      <div class="badges" id="badges"></div>
+      <br>
+      <div class="row">
+        <button class="big-btn" id="againBtn">PLAY AGAIN</button>
+        <button class="big-btn alt" id="homeBtn">NEW MISSION</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const HEROES=[
+  {id:'bolt',name:'Captain Bolt',power:'Lightning',suit:'#2a9df4',cape:'#e63946',mask:'#14142b',emblem:'bolt'},
+  {id:'blaze',name:'Blaze Girl',power:'Fire',suit:'#e63946',cape:'#ffd23f',mask:'#14142b',emblem:'star'},
+  {id:'rex',name:'Iron Rex',power:'Super Strength',suit:'#2ec27e',cape:'#7b2cbf',mask:'#14142b',emblem:'plus'},
+  {id:'nova',name:'Star Nova',power:'Starlight',suit:'#7b2cbf',cape:'#2a9df4',mask:'#ffd23f',emblem:'star'}
+];
+const MODES=[
+  {id:'add10',name:'Adding to 10',desc:'Like 3 + 4',},
+  {id:'add20',name:'Adding to 20',desc:'Like 8 + 7'},
+  {id:'sub10',name:'Taking Away',desc:'Like 9 − 3'},
+  {id:'mix',name:'Super Mix',desc:'Adding, taking away & missing numbers'}
+];
+const TOTAL=10;
+let hero=HEROES[0], mode=MODES[0];
+let qIndex=0, stars=0, firstTry=0, tries=0, current=null, villainHp=TOTAL, streak=0, bestStreak=0;
+
+function heroSVG(h,size=140){
+  const em = h.emblem==='bolt' ? '<path d="M72 92 62 108h8l-4 14 14-18h-8l4-12z" fill="#ffd23f" stroke="#14142b" stroke-width="2"/>'
+    : h.emblem==='plus' ? '<path d="M66 98h8v-8h6v8h8v6h-8v8h-6v-8h-8z" fill="#ffd23f" stroke="#14142b" stroke-width="2"/>'
+    : '<path d="M75 90l4 9 10 1-7 7 2 10-9-5-9 5 2-10-7-7 10-1z" fill="#ffd23f" stroke="#14142b" stroke-width="2"/>';
+  return `<svg viewBox="0 0 150 160" width="${size}" height="${size}" aria-hidden="true">
+  <path d="M45 80 20 150h110L105 80z" fill="${h.cape}" stroke="#14142b" stroke-width="4"/>
+  <rect x="50" y="78" width="50" height="58" rx="14" fill="${h.suit}" stroke="#14142b" stroke-width="4"/>
+  <circle cx="75" cy="104" r="16" fill="#fff" stroke="#14142b" stroke-width="3"/>
+  ${em}
+  <rect x="30" y="84" width="20" height="12" rx="6" fill="${h.suit}" stroke="#14142b" stroke-width="4" transform="rotate(-30 40 90)"/>
+  <rect x="100" y="84" width="20" height="12" rx="6" fill="${h.suit}" stroke="#14142b" stroke-width="4" transform="rotate(30 110 90)"/>
+  <rect x="56" y="132" width="14" height="20" rx="5" fill="#14142b"/><rect x="80" y="132" width="14" height="20" rx="5" fill="#14142b"/>
+  <circle cx="75" cy="50" r="30" fill="#f6c9a0" stroke="#14142b" stroke-width="4"/>
+  <path d="M45 46c8-26 52-26 60 0-10-8-50-8-60 0z" fill="#3b2314" stroke="#14142b" stroke-width="3"/>
+  <path d="M48 46h54v12c-10 4-17-2-27-2s-17 6-27 2z" fill="${h.mask}" stroke="#14142b" stroke-width="2"/>
+  <ellipse cx="63" cy="51" rx="6" ry="4" fill="#fff"/><ellipse cx="87" cy="51" rx="6" ry="4" fill="#fff"/>
+  <path d="M64 66q11 9 22 0" fill="none" stroke="#14142b" stroke-width="4" stroke-linecap="round"/>
+  </svg>`;
+}
+function villainSVG(){
+  return `<svg viewBox="0 0 150 160" width="140" height="150" aria-hidden="true">
+  <path d="M40 80 22 150h106L110 80z" fill="#3a0b4f" stroke="#14142b" stroke-width="4"/>
+  <rect x="48" y="78" width="54" height="60" rx="12" fill="#5a189a" stroke="#14142b" stroke-width="4"/>
+  <rect x="60" y="100" width="30" height="8" rx="4" fill="#e63946" stroke="#14142b" stroke-width="2"/>
+  <rect x="56" y="134" width="14" height="18" rx="5" fill="#14142b"/><rect x="80" y="134" width="14" height="18" rx="5" fill="#14142b"/>
+  <circle cx="75" cy="48" r="30" fill="#9be564" stroke="#14142b" stroke-width="4"/>
+  <path d="M52 40l16 6M98 40l-16 6" stroke="#14142b" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="63" cy="52" r="5" fill="#e63946"/><circle cx="87" cy="52" r="5" fill="#e63946"/>
+  <path d="M62 68q13-8 26 0" fill="none" stroke="#14142b" stroke-width="4" stroke-linecap="round"/>
+  <path d="M45 30q30-30 60 0" fill="none" stroke="#14142b" stroke-width="6"/>
+  </svg>`;
+}
+
+/* ---- setup screen ---- */
+const heroPicks=document.getElementById('heroPicks'), modePicks=document.getElementById('modePicks');
+HEROES.forEach((h,i)=>{
+  const b=document.createElement('button');b.className='pick'+(i===0?' sel':'');
+  b.innerHTML=heroSVG(h,80)+h.name+'<small>'+h.power+'</small>';
+  b.onclick=()=>{hero=h;[...heroPicks.children].forEach(c=>c.classList.remove('sel'));b.classList.add('sel');sfx('click');};
+  heroPicks.appendChild(b);
+});
+MODES.forEach((m,i)=>{
+  const b=document.createElement('button');b.className='pick'+(i===0?' sel':'');
+  b.innerHTML=`<span style="font-size:22px">${m.name}</span><small>${m.desc}</small>`;
+  b.onclick=()=>{mode=m;[...modePicks.children].forEach(c=>c.classList.remove('sel'));b.classList.add('sel');sfx('click');};
+  modePicks.appendChild(b);
+});
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo(0,0)}
+
+/* ---- problem generation (first-grade: +/− within 20, missing addends) ---- */
+const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+function makeProblem(){
+  let t = mode.id;
+  if(t==='mix') t=['add10','add20','sub10','sub20','missing'][rnd(0,4)];
+  let a,b,ans,text,kind;
+  if(t==='add10'){a=rnd(0,9);b=rnd(1,10-a);ans=a+b;kind='+';}
+  else if(t==='add20'){a=rnd(3,10);b=rnd(2,10);if(a+b>20)b=20-a;ans=a+b;kind='+';}
+  else if(t==='sub10'){a=rnd(2,10);b=rnd(1,a);ans=a-b;kind='-';}
+  else if(t==='sub20'){a=rnd(11,18);b=rnd(2,9);ans=a-b;kind='-';}
+  else {a=rnd(1,8);ans=rnd(1,10-a);b=a+ans;kind='missing';}
+  if(kind==='+'){text=`${a} + ${b} = <span class="q">?</span>`;}
+  else if(kind==='-'){text=`${a} − ${b} = <span class="q">?</span>`;}
+  else {text=`${a} + <span class="q">?</span> = ${b}`;}
+  const speak = kind==='+'?`What is ${a} plus ${b}?`: kind==='-'?`What is ${a} take away ${b}?`:`${a} plus what makes ${b}?`;
+  return {a,b,ans,text,kind,speak};
+}
+function choices(ans){
+  const set=new Set([ans]);
+  const near=[ans+1,ans-1,ans+2,ans-2,ans+3,ans-3].filter(n=>n>=0&&n<=20);
+  while(set.size<4){ set.add(near.length?near.splice(rnd(0,near.length-1),1)[0]:rnd(0,20)); }
+  return [...set].sort(()=>Math.random()-.5);
+}
+function dots(n,cls=''){return '<div class="dots">'+Array.from({length:n},()=>`<span class="dot ${cls}"></span>`).join('')+'</div>'}
+function hint(p){
+  const v=document.getElementById('visual');
+  if(p.kind==='+') v.innerHTML=dots(p.a)+'<span class="op">+</span>'+dots(p.b,'b');
+  else if(p.kind==='-') v.innerHTML='<div class="dots">'+Array.from({length:p.a},(_,i)=>`<span class="dot ${i>=p.a-p.b?'x':''}"></span>`).join('')+'</div>';
+  else v.innerHTML=dots(p.a)+'<span class="op">+ ? =</span>'+dots(p.b,'b');
+}
+
+/* ---- game loop ---- */
+function startGame(){
+  qIndex=0;stars=0;firstTry=0;villainHp=TOTAL;streak=0;bestStreak=0;
+  document.getElementById('heroSvg').innerHTML=heroSVG(hero);
+  document.getElementById('villainSvg').innerHTML=villainSVG();
+  document.getElementById('heroName').textContent=hero.name;
+  document.getElementById('villainHp').style.width='100%';
+  show('battle');nextQ();
+}
+function nextQ(){
+  if(qIndex>=TOTAL){return winGame();}
+  current=makeProblem();tries=0;
+  document.getElementById('progress').textContent=`Problem ${qIndex+1} of ${TOTAL}`;
+  document.getElementById('starCount').textContent='★ '+stars;
+  document.getElementById('problem').innerHTML=current.text;
+  document.getElementById('visual').innerHTML='';
+  document.getElementById('feedback').textContent='';document.getElementById('feedback').className='feedback';
+  const box=document.getElementById('answers');box.innerHTML='';
+  choices(current.ans).forEach(n=>{
+    const b=document.createElement('button');b.className='ans';b.textContent=n;
+    b.onclick=()=>answer(n,b);box.appendChild(b);
+  });
+  if(autoRead) say(current.speak);
+}
+const PRAISE=['Super job!','Power up!','Heroic!','You got it!','Amazing!','Way to go, hero!','Boom! Correct!'];
+const TRYMSG=['Almost! Try again.','Not quite. Count the dots!','Keep going, hero!'];
+function answer(n,btn){
+  const fb=document.getElementById('feedback');
+  if(n===current.ans){
+    [...document.querySelectorAll('.ans')].forEach(b=>b.disabled=true);
+    btn.classList.add('right');
+    if(tries===0){stars++;firstTry++;streak++;bestStreak=Math.max(bestStreak,streak);} else {streak=0;}
+    fb.textContent=PRAISE[rnd(0,PRAISE.length-1)]+(tries===0?' +1 ★':'');fb.className='feedback good';
+    say(fb.textContent.replace('+1 ★',''));
+    attack();
+    qIndex++;villainHp--;
+    setTimeout(nextQ,1500);
+  } else {
+    tries++;btn.disabled=true;
+    fb.textContent=TRYMSG[Math.min(tries-1,2)];fb.className='feedback try';
+    sfx('wrong');hint(current);
+    document.getElementById('villainBox').classList.remove('bounce');void document.getElementById('villainBox').offsetWidth;
+    document.getElementById('villainBox').classList.add('bounce');
+  }
+}
+function attack(){
+  const blast=document.getElementById('blast'),arena=document.getElementById('arena'),vb=document.getElementById('villainBox'),hb=document.getElementById('heroBox');
+  blast.style.setProperty('--dist',arena.clientWidth-300);
+  blast.classList.remove('go');void blast.offsetWidth;blast.classList.add('go');
+  hb.classList.remove('bounce');void hb.offsetWidth;hb.classList.add('bounce');
+  sfx('zap');
+  setTimeout(()=>{
+    vb.classList.remove('shake');void vb.offsetWidth;vb.classList.add('shake');
+    const boom=document.getElementById('boom');boom.textContent=['POW!','ZAP!','BAM!','KAPOW!','WHAM!'][rnd(0,4)];
+    boom.classList.remove('show');void boom.offsetWidth;boom.classList.add('show');
+    document.getElementById('villainHp').style.width=(Math.max(0,villainHp)/TOTAL*100)+'%';
+    sfx('boom');
+  },500);
+}
+function winGame(){
+  show('win');sfx('win');
+  document.getElementById('winHero').innerHTML=heroSVG(hero,160);
+  const s = firstTry>=9?3: firstTry>=6?2:1;
+  document.getElementById('winStars').innerHTML='★'.repeat(s)+'<span class="off">'+'★'.repeat(3-s)+'</span>';
+  document.getElementById('winText').textContent=`${hero.name} defeated Dr. Minus! You got ${firstTry} of ${TOTAL} on the first try.`;
+  const badges=[];
+  if(firstTry===TOTAL)badges.push('Perfect Hero');
+  if(bestStreak>=5)badges.push(bestStreak+' in a row');
+  badges.push(mode.name+' Champion');
+  document.getElementById('badges').innerHTML=badges.map(b=>`<span class="badge">${b}</span>`).join('');
+  saveProgress();
+  say(`You saved the city! You got ${firstTry} out of ${TOTAL} on the first try!`);
+  confetti();
+}
+function saveProgress(){}
+function confetti(){
+  const colors=['#ffd23f','#e63946','#2a9df4','#2ec27e','#7b2cbf'];
+  for(let i=0;i<80;i++){const c=document.createElement('div');c.className='confetti';
+    c.style.left=Math.random()*100+'vw';c.style.background=colors[i%5];c.style.animationDuration=(2+Math.random()*2)+'s';
+    c.style.animationDelay=Math.random()*.6+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),5000);}
+}
+
+/* ---- speech + sound ---- */
+let autoRead=false;
+function say(t){try{if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.9;u.pitch=1.15;speechSynthesis.speak(u);}catch(e){}}
+let actx;
+function tone(f,d,type='square',v=.08,slide){
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();
+  o.type=type;o.frequency.value=f;if(slide)o.frequency.exponentialRampToValueAtTime(slide,actx.currentTime+d);
+  g.gain.setValueAtTime(v,actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+d);
+  o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+d);}catch(e){}
+}
+function sfx(k){
+  if(k==='click')tone(660,.08);
+  if(k==='zap')tone(1200,.4,'sawtooth',.06,200);
+  if(k==='boom')tone(120,.35,'triangle',.2,40);
+  if(k==='wrong')tone(220,.25,'sine',.1,160);
+  if(k==='win'){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,.25,'square',.07),i*150));}
+}
+
+document.getElementById('goBtn').onclick=()=>{sfx('click');startGame();};
+document.getElementById('againBtn').onclick=startGame;
+document.getElementById('homeBtn').onclick=()=>show('start');
+document.getElementById('quitBtn').onclick=()=>show('start');
+document.getElementById('speakBtn').onclick=()=>{autoRead=true;say(current.speak);};
+</script>
+</body>
+</html>
