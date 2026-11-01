@@ -1,6 +1,6 @@
 # Math Heroes: Save the City
 
-A free, superhero-themed math game for first graders that runs in any web browser.
+A free, superhero-themed learning game for first graders (math, reading, spelling, and the water cycle) that runs in any web browser.
 
 **Play it now:** https://superhero-math.pplx.app
 
@@ -8,17 +8,35 @@ Dr. Minus is attacking the city. Kids pick a hero, solve math problems, and ever
 
 ## Features
 
-- Four heroes to choose from: Captain Bolt, Blaze Girl, Iron Rex, and Star Nova
-- First-grade missions:
-  - **Adding to 10**
-  - **Adding to 20**
-  - **Taking Away** (subtraction within 10)
-  - **Super Mix**: addition, subtraction within 20, and missing-number problems such as `3 + ? = 10`
-- Big tap-friendly answer buttons, so no typing is needed
+Pick one of four heroes (Captain Bolt, Blaze Girl, Iron Rex, Star Nova), then choose a world and a mission.
+
+### Math City (villain: Dr. Minus)
+- **Adding to 10**
+- **Adding to 20**
+- **Taking Away** (subtraction within 10)
+- **Super Mix**: addition, subtraction within 20, and missing-number problems such as `3 + ? = 10`
 - Counting-dot hints appear after a wrong answer
-- "Read to me" button reads each problem aloud for early readers
-- Up to 3 stars and badges at the end of each mission
-- Works on desktop, tablet, and phone
+
+### Word World (villain: The Scrambler)
+- **Sight Word Spotter**: hear a word and tap it, using words from the Dolch pre-primer, primer, and first-grade lists
+- **Spell It!**: build a picture word (cat, frog, ship...) from letter tiles; letters are filled in as hints after a miss
+- **Missing Letter**: choose the missing letter in a word such as `_at`, with a focus on short vowels
+- **Word Mix**: all three, with a list of practiced words at the end
+
+### Water World (villain: Dr. Drought)
+Based on a first-grade water cycle study guide.
+- **Water Words**: evaporation, condensation, precipitation, lake, river, ocean, ground water, reservoir, cycle
+- **Cycle Steps**: what happens next in the water cycle, plus the sun, gravity, gas vs. liquid
+- **Fresh or Salt?**: kinds of water, why water matters, and where Chesapeake, Virginia gets its water
+- **Tell the Story**: build an explanation of the water cycle step by step
+- Each mission ends with a labeled water cycle diagram and a read-aloud explanation to practice saying and writing
+
+### Hero extras
+- **Super Mode**: 3 right in a row powers up the hero for double stars and bigger attacks
+- **Boss round** on the final problem, villain speech bubbles, particle effects, and confetti
+- Ranks from Rookie Hero to Legend (reset when the page reloads)
+- Problems and words are read aloud with the browser's built-in voice
+- Big tap-friendly buttons; works on desktop, tablet, and phone
 
 ## Privacy
 
