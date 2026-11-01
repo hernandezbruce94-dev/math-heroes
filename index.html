@@ -17,6 +17,7 @@ html,body{height:100%}
 body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);
   background:radial-gradient(circle at 50% 0%,var(--sky2),var(--sky) 70%);min-height:100vh;overflow-x:hidden}
 body.word-world{background:radial-gradient(circle at 50% 0%,#8a3ffc,#2b0d5c 70%)}
+body.water-world{background:radial-gradient(circle at 50% 0%,#1fb5c9,#073b5c 70%)}
 #fx{position:fixed;inset:0;z-index:0;pointer-events:none}
 .city{position:fixed;left:0;right:0;bottom:0;height:160px;z-index:0;pointer-events:none}
 main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px 180px}
@@ -40,7 +41,8 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
 .grid{display:grid;gap:14px}
 .heroes{grid-template-columns:repeat(4,1fr)}
 .modes{grid-template-columns:repeat(2,1fr)}
-.worlds{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.worlds{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+@media(max-width:600px){.worlds{grid-template-columns:1fr}}
 @media(max-width:600px){.heroes{grid-template-columns:repeat(2,1fr)}.modes{grid-template-columns:1fr}}
 .pick{background:#fff;border:4px solid var(--ink);border-radius:18px;padding:12px 8px;cursor:pointer;text-align:center;
   font:800 18px 'Nunito';transition:transform .12s,box-shadow .12s;box-shadow:4px 4px 0 var(--ink);color:var(--ink)}
@@ -50,7 +52,7 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
 .pick small{display:block;font-weight:700;font-size:14px;color:#555}
 .world{font-family:'Bangers';font-size:30px;letter-spacing:1.5px;padding:14px 8px;color:#fff}
 .world small{color:#fffc;font-family:'Nunito';font-size:14px;letter-spacing:0}
-.world.math{background:var(--blue)}.world.word{background:var(--purple)}
+.world.math{background:var(--blue)}.world.word{background:var(--purple)}.world.water{background:#0f8fa8}
 .world.sel{background:var(--yellow);color:var(--ink)}.world.sel small{color:#444}
 .big-btn{display:block;margin:0 auto;font-family:'Bangers';font-size:40px;letter-spacing:2px;color:#fff;background:var(--red);
   border:5px solid var(--ink);border-radius:20px;padding:12px 48px;box-shadow:6px 6px 0 var(--ink);cursor:pointer;transition:transform .1s;animation:pulse 1.6s infinite}
@@ -115,6 +117,7 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
 .listen{font-family:'Bangers';font-size:30px;letter-spacing:2px;background:var(--blue);color:#fff;border:4px solid var(--ink);border-radius:999px;padding:8px 28px;
   box-shadow:4px 4px 0 var(--ink);cursor:pointer;margin:6px 4px}
 .listen.peek{background:#fff;color:var(--ink);font-size:22px;padding:6px 18px}
+.visual:empty{min-height:0;margin:0}
 .visual{min-height:56px;display:flex;justify-content:center;align-items:center;gap:18px;flex-wrap:wrap;margin:10px 0 4px}
 .dots{display:flex;flex-wrap:wrap;gap:5px;max-width:190px;justify-content:center}
 .dot{width:22px;height:22px;border-radius:50%;background:var(--blue);border:2px solid var(--ink)}
@@ -144,6 +147,21 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
 .undo{margin-top:12px}
 @media(max-width:600px){.bubble{right:0;top:-34px;font-size:13px;max-width:170px}.bubble::after{right:30px;top:auto;bottom:-14px;border-left-color:transparent;border-top-color:var(--ink)}}
 @media(max-width:420px){.slot{width:52px;height:64px;font-size:38px}.tile{width:54px;height:54px;font-size:32px}}
+.qbox{display:flex;align-items:center;gap:16px;justify-content:center;text-align:left;margin:4px auto 6px;max-width:680px}
+.qbox .pic{font-size:clamp(56px,12vw,80px);flex:none}
+.qtext{font-weight:900;font-size:clamp(22px,4.6vw,30px);line-height:1.25}
+.ans.long{font-family:'Nunito';font-weight:900;font-size:clamp(18px,3.6vw,22px);letter-spacing:0;padding:14px 12px;line-height:1.25;min-height:76px}
+.answers.long{grid-template-columns:repeat(2,1fr)}
+@media(max-width:600px){.answers.long{grid-template-columns:1fr}}
+.hintbox{background:#e6f7fb;border:3px solid #0f8fa8;border-radius:14px;padding:10px 14px;font-weight:800;font-size:18px;max-width:640px;margin:0 auto;text-align:left}
+.story{list-style:none;max-width:680px;margin:6px auto 4px;text-align:left;counter-reset:st}
+.story li{counter-increment:st;background:#e6f7fb;border:3px solid #0f8fa8;border-radius:12px;padding:8px 12px 8px 46px;margin-bottom:8px;font-weight:800;font-size:18px;position:relative}
+.story li::before{content:counter(st);position:absolute;left:10px;top:7px;width:26px;height:26px;border-radius:50%;background:#0f8fa8;color:#fff;font-weight:900;text-align:center;line-height:26px}
+.story li.new{animation:pop .4s}
+.explain{max-width:680px;margin:16px auto 0;text-align:left;background:#e6f7fb;border:4px solid #0f8fa8;border-radius:18px;padding:16px}
+.explain h3{font-family:'Bangers';letter-spacing:1px;font-size:28px;color:#0f6f84;margin-bottom:6px}
+.explain .tip{font-size:15px;font-weight:800;color:#444;margin-top:8px}
+.cycle-svg{width:100%;max-width:520px;display:block;margin:6px auto}
 .feedback{min-height:40px;text-align:center;font-weight:900;font-size:24px;margin-top:14px}
 .feedback.good{color:var(--green)}.feedback.try{color:var(--red)}
 
@@ -192,13 +210,14 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
       <div class="worlds">
         <button class="pick world math sel" data-world="math">Math City<small>Adding &amp; taking away</small></button>
         <button class="pick world word" data-world="word">Word World<small>Reading &amp; spelling</small></button>
+        <button class="pick world water" data-world="water">Water World<small>The water cycle</small></button>
       </div>
       <h2 style="font-size:26px">3. Pick your mission</h2>
       <div class="grid modes" id="modePicks"></div>
     </div>
 
     <button class="big-btn" id="goBtn">LET'S GO!</button>
-    <p class="parent">Tip: Word World reads each word out loud, so turn your sound on. Get 3 right in a row for SUPER MODE.</p>
+    <p class="parent">Tip: Word World and Water World read out loud, so turn your sound on. Get 3 right in a row for SUPER MODE.</p>
   </section>
 
   <!-- BATTLE -->
@@ -234,6 +253,7 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
       <p id="winText"></p>
       <div class="badges" id="badges"></div>
       <div class="learned" id="learned"></div>
+      <div id="explain"></div>
       <br>
       <div class="row">
         <button class="big-btn" id="againBtn">PLAY AGAIN</button>
@@ -263,6 +283,12 @@ const MODES={
     {id:'spell',name:'Spell It!',desc:'Build the word with letters'},
     {id:'missing',name:'Missing Letter',desc:'Fix the broken word'},
     {id:'wordmix',name:'Word Mix',desc:'All three word games'}
+  ],
+  water:[
+    {id:'wvocab',name:'Water Words',desc:'Evaporation, lake, reservoir…'},
+    {id:'wcycle',name:'Cycle Steps',desc:'What happens next?'},
+    {id:'wfacts',name:'Fresh or Salt?',desc:'Kinds of water & Chesapeake'},
+    {id:'wstory',name:'Tell the Story',desc:'Explain the water cycle'}
   ]
 };
 const VILLAINS={
@@ -271,8 +297,85 @@ const VILLAINS={
     hurt:['Ouch! My numbers!','Nooo! You counted right!','Grr! Lucky guess!']},
   word:{name:'The Scrambler',skin:'#ff9ecd',suit:'#0f7173',cape:'#06393a',win:'WORDS SAVED!',
     taunts:['I mixed up all the letters!','You cannot read my tricks!','Try again, word hero!','Hee hee, spell THAT!'],
-    hurt:['Ack! You read it!','My letters! Unscrambled!','Grr! Super spelling!']}
+    hurt:['Ack! You read it!','My letters! Unscrambled!','Grr! Super spelling!']},
+  water:{name:'Dr. Drought',skin:'#f4a259',suit:'#8c5a2b',cape:'#4a2c12',win:'WATER SAVED!',
+    taunts:['I will dry up all the water!','No more rain for you!','Ha! Think again, hero!','My heat is too strong!'],
+    hurt:['Splash! Not the water!','Nooo! You know the cycle!','Grr! Too smart!']}
 };
+/* Water cycle questions, taken from the class Water Cycle Study Guide */
+const WATER={
+  wvocab:[
+    {q:'Water is heated up and turns into water vapor (gas). What is it called?',a:'Evaporation',o:['Condensation','Precipitation','Reservoir'],pic:'♨️',h:'Evaporation: water is heated up and turns into water vapor (gas).'},
+    {q:'Water vapor (gas) cools and turns back into tiny water drops (liquid). What is it called?',a:'Condensation',o:['Evaporation','Precipitation','Cycle'],pic:'☁️',h:'Condensation: the gas turns back into a liquid and forms clouds.'},
+    {q:'Water falls down as rain, snow, sleet, or hail. What is it called?',a:'Precipitation',o:['Evaporation','Condensation','Ground water'],pic:'🌧️',h:'Precipitation: water falls down as rain, snow, sleet, or hail.'},
+    {q:'A body of water that is completely surrounded by land.',a:'Lake',o:['Ocean','River','Cloud'],pic:'🏞️',h:'A lake is completely surrounded by land. It has fresh water.'},
+    {q:'Flowing water that can empty into the ocean.',a:'River',o:['Lake','Puddle','Ground water'],pic:'🌊',h:'Rivers and streams flow and can empty into the ocean.'},
+    {q:'The largest body of water on earth. It covers about 75% of the earth.',a:'Ocean',o:['Lake','River','Pond'],pic:'🌍',h:'The ocean is the largest body of water. It is salt water.'},
+    {q:'Water that is under the ground, between rock layers.',a:'Ground water',o:['Ocean water','Rain','Clouds'],pic:'🪨',h:'Ground water (well water) is underground, between rock layers.'},
+    {q:'A place where water is collected on earth, like a lake, pond, or puddle.',a:'Reservoir',o:['Cycle','Condensation','Evaporation'],pic:'💧',h:'A reservoir is a place where water is collected. It can be man made or natural.'},
+    {q:'Something that repeats over and over again.',a:'Cycle',o:['Lake','Reservoir','Ocean'],pic:'🔄',h:'A cycle is continuous. It repeats over and over again.'},
+    {q:'What powers the water cycle?',a:'The sun',o:['The moon','The wind','The ocean'],pic:'☀️',h:'The sun powers the water cycle by causing evaporation.'},
+    {q:'Clouds, fog, and a foggy mirror after a hot shower are examples of…',a:'Condensation',o:['Evaporation','Precipitation','Ground water'],pic:'🌫️',h:'Clouds, fog, and water on the side of a cold glass are condensation.'},
+    {q:'Rain, hail, snow, and sleet are kinds of…',a:'Precipitation',o:['Evaporation','Condensation','Reservoirs'],pic:'🌨️',h:'Rain, hail, snow, and sleet are precipitation.'},
+    {q:'Lakes, ponds, the ocean, ground water, and puddles are all…',a:'Reservoirs',o:['Clouds','Cycles','Water vapor'],pic:'🏞️',h:'Lakes, ponds, ocean, ground water, and puddles are reservoirs.'},
+    {q:'Which one is a cycle?',a:'The seasons',o:['A rock','A chair','A pencil'],pic:'🍂',h:'The water cycle, life cycle, seasons, and day and night are cycles.'}
+  ],
+  wcycle:[
+    {q:'The sun heats the water. What happens first?',a:'Evaporation',o:['Precipitation','Condensation','Nothing'],pic:'☀️',h:'The sun heats water and it evaporates into water vapor.'},
+    {q:'After evaporation, the water vapor cools and makes clouds. What is that?',a:'Condensation',o:['Precipitation','Evaporation','Ground water'],pic:'☁️',h:'Condensation: the gas cools and turns back into a liquid and forms clouds.'},
+    {q:'After condensation, the drops get heavy and fall. What is that?',a:'Precipitation',o:['Evaporation','Condensation','Reservoir'],pic:'🌧️',h:'Precipitation: the drops get heavy and fall as rain, snow, sleet, or hail.'},
+    {q:'Rain falls into a lake. What happens next?',a:'The sun heats it again',o:['The cycle ends','The water turns to rock','The lake flies away'],pic:'🔄',h:'The water cycle has no end. It keeps going over and over.'},
+    {q:'What pulls the heavy water drops down to the earth?',a:'Gravity',o:['The wind','The moon','The clouds'],pic:'⬇️',h:'The drops get heavy and gravity pulls the water toward the earth.'},
+    {q:'Evaporation turns liquid water into…',a:'Water vapor (gas)',o:['Ice','Rocks','Salt'],pic:'♨️',h:'Evaporation changes liquid water into water vapor (gas).'},
+    {q:'Condensation turns water vapor (gas) back into…',a:'Tiny water drops (liquid)',o:['Sunshine','Sand','Wind'],pic:'💧',h:'Condensation turns water vapor back into tiny water drops (liquid).'},
+    {q:'Does the water cycle have a beginning or an end?',a:'No, it keeps going',o:['Yes, it ends at night','Yes, it ends in winter','Yes, it starts on Monday'],pic:'🔄',h:'The water cycle does not have a beginning or an end. It happens all over the earth at the same time.'},
+    {q:'Where does the water cycle happen?',a:'All over the earth',o:['Only in Chesapeake','Only at the beach','Only in the sky'],pic:'🌍',h:'The water cycle is happening all over the earth, all at the same time.'},
+    {q:'What does the sun\'s energy make that warms the earth?',a:'Heat',o:['Snow','Clouds','Rocks'],pic:'☀️',h:'The sun\'s energy produces heat that warms the earth.'}
+  ],
+  wfacts:[
+    {q:'Is a lake fresh water or salt water?',a:'Fresh water',o:['Salt water'],pic:'🏞️',h:'Lakes have fresh water.'},
+    {q:'Is a river fresh water or salt water?',a:'Fresh water',o:['Salt water'],pic:'🌊',h:'Rivers and streams have fresh water.'},
+    {q:'Is the ocean fresh water or salt water?',a:'Salt water',o:['Fresh water'],pic:'🐳',h:'The ocean is salt water.'},
+    {q:'Is ground water fresh water or salt water?',a:'Fresh water',o:['Salt water'],pic:'🪨',h:'Ground water (well water) is fresh water.'},
+    {q:'Can we drink ocean water?',a:'No, it is salt water',o:['Yes, it is fresh water'],pic:'🐟',h:'Ocean water is salt water. It is not used for drinking.'},
+    {q:'Where is ground water?',a:'Below ground',o:['Above ground','In the clouds','On the moon'],pic:'⬇️',h:'Ground water is below ground.'},
+    {q:'Where is ocean water?',a:'Above ground',o:['Below ground','In the clouds','Inside rocks'],pic:'🌊',h:'Ocean water is above ground.'},
+    {q:'How are ground water and ocean water the same?',a:'Both are water',o:['Both are salty','Both are underground','Both are clouds'],pic:'💧',h:'Ground water and ocean water are both water.'},
+    {q:'Chesapeake gets its water from…',a:'Lake Gaston',o:['The moon','A volcano','The Pacific Ocean'],pic:'🚰',h:'Chesapeake gets water from Lake Gaston, the Northwest River, and deep wells.'},
+    {q:'Which river gives Chesapeake water?',a:'The Northwest River',o:['The Moon River','The Candy River','The Rainbow River'],pic:'🏞️',h:'Chesapeake gets water from the Northwest River.'},
+    {q:'Chesapeake also gets water from deep…',a:'Wells',o:['Clouds','Caves','Volcanoes'],pic:'🪣',h:'Chesapeake gets water from deep wells around Chesapeake.'},
+    {q:'Why is water important?',a:'We need it to survive',o:['It is only for fun','We do not need it','Only fish need it'],pic:'💧',h:'People, plants, and animals all need water to survive.'},
+    {q:'How can animals get water?',a:'Drinking from lakes',o:['Eating rocks','From the moon','From the wind'],pic:'🦌',h:'Animals get water by eating plants, eating other animals, and drinking from lakes and rivers.'},
+    {q:'The water cycle gives the earth a…',a:'Continuous supply of water',o:['Lot of sand','Big rainbow','Pile of rocks'],pic:'🌍',h:'The water cycle provides the earth with a continuous supply of water.'}
+  ]
+};
+const STORY=[
+  'The sun heats the water in lakes, rivers, and oceans.',
+  'The water turns into water vapor (gas) and goes up. This is evaporation.',
+  'The water vapor cools and turns into tiny drops that make clouds. This is condensation.',
+  'The drops get heavy, and gravity pulls them down as rain, snow, sleet, or hail. This is precipitation.',
+  'The water collects in lakes, rivers, oceans, and ground water. Then the cycle starts again. It never ends.'
+];
+const STORY_WRONG=['The clouds turn into rocks and stay in the sky.','The water cycle stops and never starts again.','The moon heats the water and makes it salty.','The water turns into sand and blows away.'];
+const CYCLE_SVG=`<svg class="cycle-svg" viewBox="0 0 520 280" role="img" aria-label="Water cycle: the sun heats water, evaporation, condensation, precipitation, then water collects and the cycle repeats">
+<defs><marker id="ar" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0 0 8 4 0 8z" fill="#14142b"/></marker></defs>
+<rect width="520" height="280" rx="16" fill="#cdeefa"/>
+<circle cx="468" cy="44" r="26" fill="#ffd23f" stroke="#14142b" stroke-width="3"/>
+<text x="468" y="88" text-anchor="middle" font-family="Nunito" font-weight="900" font-size="13" fill="#14142b">Sun</text>
+<path d="M0 210 70 140 140 200 190 170 260 210z" fill="#7cb342" stroke="#14142b" stroke-width="3"/>
+<rect x="0" y="210" width="260" height="70" fill="#8d6e63" stroke="#14142b" stroke-width="3"/>
+<rect x="260" y="210" width="260" height="70" fill="#2a9df4" stroke="#14142b" stroke-width="3"/>
+<g fill="#fff" stroke="#14142b" stroke-width="3"><ellipse cx="90" cy="58" rx="56" ry="22"/><ellipse cx="270" cy="50" rx="52" ry="20"/></g>
+<g stroke="#1976d2" stroke-width="4" stroke-linecap="round"><path d="M62 92v14M82 96v14M102 92v14M122 96v14M72 118v12M112 118v12"/></g>
+<g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"><path d="M380 198c-7-10 7-17 0-28s7-17 0-28"/><path d="M410 198c-7-10 7-17 0-28s7-17 0-28"/><path d="M440 198c-7-10 7-17 0-28s7-17 0-28"/></g>
+<g fill="none" stroke="#14142b" stroke-width="3" marker-end="url(#ar)">
+<path d="M410 128Q390 70 330 56"/><path d="M216 46Q182 34 152 48"/><path d="M180 232Q220 246 290 240"/></g>
+<g font-family="Nunito" font-weight="900" fill="#14142b">
+<rect x="336" y="98" width="130" height="24" rx="12" fill="#fff" stroke="#14142b" stroke-width="2"/><text x="401" y="115" text-anchor="middle" font-size="14">1. Evaporation</text>
+<rect x="214" y="4" width="112" height="0" rx="0" fill="#fff" stroke="#14142b" stroke-width="2"/><rect x="202" y="72" width="136" height="24" rx="12" fill="#fff" stroke="#14142b" stroke-width="2"/><text x="270" y="89" text-anchor="middle" font-size="14">2. Condensation</text>
+<rect x="132" y="96" width="136" height="24" rx="12" fill="#fff" stroke="#14142b" stroke-width="2"/><text x="200" y="113" text-anchor="middle" font-size="14">3. Precipitation</text>
+<text x="130" y="262" text-anchor="middle" font-size="13" fill="#fff">Ground water (fresh)</text>
+<text x="390" y="262" text-anchor="middle" font-size="13" fill="#fff">Ocean (salt water)</text></g></svg>`;
 // First-grade sight words (Dolch pre-primer, primer and first grade lists)
 const SIGHT=['the','and','was','said','you','they','have','come','here','there','what','when','where','could','would','from','went','look','play','give','going','know','live','many','once','open','over','put','some','stop','take','thank','them','then','think','walk','were','after','again','ask','any','by','every','fly','had','her','him','his','how','just','let','may','of','old','an','as','big','can','down','find','for','funny','help','jump','little','make','not','one','red','run','see','two','who','with','yes','saw','into','like','must','new','now','our','please','pretty','ran','ride','soon','that','this','too','under','want','well','white','will'];
 // Picture words for spelling (short-vowel CVC + simple blends)
@@ -284,7 +387,7 @@ const PICS=[
   ['drum','🥁'],['nest','🪺'],['sock','🧦'],['king','🤴'],['ring','💍'],['bell','🔔'],['hand','✋'],['lamp','💡']
 ];
 const ALPHA='abcdefghijklmnopqrstuvwxyz';
-const TOTAL=10;
+let TOTAL=10;
 const RANKS=[[0,'Rookie Hero'],[30,'Sidekick'],[80,'Hero'],[150,'Super Hero'],[250,'Mega Hero'],[400,'Legend']];
 
 /* ================= STATE ================= */
@@ -311,6 +414,16 @@ function heroSVG(h,size=140){
   <path d="M64 66q11 9 22 0" fill="none" stroke="#14142b" stroke-width="4" stroke-linecap="round"/></svg>`;
 }
 function villainSVG(v){
+  if(world==='water') return `<svg viewBox="0 0 150 160" width="140" height="150" aria-hidden="true">
+  <path d="M40 80 22 150h106L110 80z" fill="${v.cape}" stroke="#14142b" stroke-width="4"/>
+  <rect x="48" y="78" width="54" height="60" rx="12" fill="${v.suit}" stroke="#14142b" stroke-width="4"/>
+  <path d="M75 94c-8 10-10 14-10 18a10 10 0 0 0 20 0c0-4-2-8-10-18z" fill="#2a9df4" stroke="#14142b" stroke-width="2"/><path d="M62 96 88 122" stroke="#e63946" stroke-width="5" stroke-linecap="round"/>
+  <rect x="56" y="134" width="14" height="18" rx="5" fill="#14142b"/><rect x="80" y="134" width="14" height="18" rx="5" fill="#14142b"/>
+  <g stroke="#ff8c00" stroke-width="5" stroke-linecap="round"><path d="M75 4v12M45 14l7 9M105 14l-7 9M30 40h10M110 40h10"/></g>
+  <circle cx="75" cy="48" r="30" fill="${v.skin}" stroke="#14142b" stroke-width="4"/>
+  <path d="M52 40l16 6M98 40l-16 6" stroke="#14142b" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="63" cy="52" r="5" fill="#e63946"/><circle cx="87" cy="52" r="5" fill="#e63946"/>
+  <path d="M62 68q13-8 26 0" fill="none" stroke="#14142b" stroke-width="4" stroke-linecap="round"/></svg>`;
   const head = world==='word'
     ? `<path d="M48 30l8-16 8 14 11-18 11 18 8-14 8 16" fill="#ffd23f" stroke="#14142b" stroke-width="3"/>`
     : `<path d="M45 30q30-30 60 0" fill="none" stroke="#14142b" stroke-width="6"/>`;
@@ -366,7 +479,7 @@ function renderModes(){
 document.querySelectorAll('.world').forEach(b=>b.onclick=()=>{
   world=b.dataset.world;mode=MODES[world][0];
   document.querySelectorAll('.world').forEach(w=>w.classList.toggle('sel',w===b));
-  document.body.classList.toggle('word-world',world==='word');
+  document.body.classList.toggle('word-world',world==='word');document.body.classList.toggle('water-world',world==='water');
   renderModes();sfx('click');
 });
 renderModes();
@@ -431,8 +544,31 @@ function missingProblem(){
     html:`<div class="prompt">Which letter is missing?</div><div class="pic">${e}</div><div class="problem word" id="mword">${shown}</div>
       <button class="listen" onclick="say(current.full)">HEAR IT</button>`};
 }
+function waterProblem(){
+  if(mode.id==='wstory') return storyProblem();
+  const it=fresh(WATER[mode.id],x=>x.q);
+  const choices=shuffle([it.a,...it.o]);
+  return {type:'choice',long:true,ans:it.a,choices,speak:it.q.replace('…',' blank.'),hint:it.h,
+    html:`<div class="qbox"><div class="pic">${it.pic}</div><div class="qtext">${it.q}</div></div>
+      <button class="listen" onclick="say(current.speak)">HEAR IT</button><div class="visual" id="visual"></div>`};
+}
+function storyProblem(){
+  const step=qIndex, ans=STORY[step];
+  const others=STORY.filter((x,i)=>i>step); // later steps are tempting wrong answers
+  const opts=new Set([ans]);
+  if(others.length) opts.add(pick(others));
+  while(opts.size<3) opts.add(pick(STORY_WRONG));
+  const done=STORY.slice(0,step).map(x=>`<li>${x}</li>`).join('');
+  return {type:'choice',long:true,ans,choices:shuffle([...opts]),
+    speak:step===0?'How does the water cycle start? Pick the first part of the story.':'What happens next in the water cycle?',
+    hint:['Hint: The sun powers the water cycle.','Hint: Evaporation comes after the sun heats the water.','Hint: Condensation makes clouds.','Hint: Precipitation is rain, snow, sleet, or hail.','Hint: The water cycle never ends.'][step],
+    html:`<div class="prompt">${step===0?'How does the water cycle start?':'What happens next?'}</div>
+      ${step?`<ol class="story">${done}</ol>`:''}
+      <button class="listen" onclick="say(current.speak)">HEAR IT</button><div class="visual" id="visual"></div>`};
+}
 function makeProblem(){
   if(world==='math') return mathProblem();
+  if(world==='water') return waterProblem();
   let t=mode.id; if(t==='wordmix') t=pick(['sight','spell','missing']);
   return t==='sight'?sightProblem():t==='spell'?spellProblem():missingProblem();
 }
@@ -440,6 +576,7 @@ function makeProblem(){
 /* ================= GAME LOOP ================= */
 function startGame(){
   document.querySelectorAll('.confetti').forEach(c=>c.remove());parts.length=0;
+  TOTAL=mode.id==='wstory'?5:10;
   qIndex=0;stars=0;firstTry=0;villainHp=TOTAL;streak=0;bestStreak=0;seenWords=[];setSuper(false);busy=false;
   const v=VILLAINS[world];
   document.documentElement.style.setProperty('--hero',hero.blast);
@@ -460,11 +597,11 @@ function nextQ(){
   $('qbody').innerHTML=current.html;
   $('feedback').textContent='';$('feedback').className='feedback';
   if(current.type==='choice'){
-    const box=document.createElement('div');box.className='answers';
-    current.choices.forEach(n=>{const b=document.createElement('button');b.className='ans'+(current.word?' txt':'');b.textContent=n;b.onclick=()=>answer(n,b);box.appendChild(b);});
+    const box=document.createElement('div');box.className='answers'+(current.long?' long':'');
+    current.choices.forEach(n=>{const b=document.createElement('button');b.className='ans'+(current.long?' long':current.word?' txt':'');b.textContent=n;b.onclick=()=>answer(n,b);box.appendChild(b);});
     $('qbody').appendChild(box);
   } else buildSpell();
-  if(world==='word') setTimeout(()=>say(current.speak),boss?900:250);
+  if(world!=='math') setTimeout(()=>say(current.speak),boss?900:250);
   else if(autoRead) say(current.speak);
 }
 function peek(){$('peekWord').textContent=current.ans;$('peekBtn').disabled=true;}
@@ -516,6 +653,7 @@ function answer(n,btn){
     $('feedback').textContent=TRYMSG[Math.min(tries-1,2)];$('feedback').className='feedback try';
     sfx('wrong');taunt(pick(VILLAINS[world].taunts));
     if(world==='math') mathHint(current);
+    else if(current.hint){$('visual').innerHTML=`<div class="hintbox">${current.hint}</div>`;say(current.hint);}
     else if(current.full) say(current.full);
     else say(current.ans);
     const vb=$('villainBox');vb.classList.remove('bounce');void vb.offsetWidth;vb.classList.add('bounce');
@@ -531,7 +669,7 @@ function correct(){
   updateCombo();
   const msg=pick(PRAISE)+(tries===0?(wasSuper?' +2 ★':' +1 ★'):'');
   $('feedback').textContent=msg;$('feedback').className='feedback good';
-  say(world==='word'?`${pick(['Yes!','Great!','Super!'])} ${current.full||current.ans}!`:msg.replace(/\+\d ★/,''));
+  say(world!=='math'?`${pick(['Yes!','Great!','Super!'])} ${current.full||current.ans}`:msg.replace(/\+\d ★/,''));
   attack(qIndex===TOTAL-1||superMode);
   qIndex++;villainHp--;
   setTimeout(nextQ,1700);
@@ -575,7 +713,7 @@ function winGame(){
   const v=VILLAINS[world];
   $('winTitle').textContent=v.win;
   $('winHero').innerHTML=heroSVG(hero,160);
-  const s=firstTry>=9?3:firstTry>=6?2:1;
+  const s=firstTry>=TOTAL*.9?3:firstTry>=TOTAL*.6?2:1;
   $('winStars').innerHTML='★'.repeat(s)+'<span class="off">'+'★'.repeat(3-s)+'</span>';
   xp+=20;updateRank();
   $('winText').textContent=`${hero.name} defeated ${v.name}! You got ${firstTry} of ${TOTAL} on the first try and earned ${stars} stars.`;
@@ -587,6 +725,9 @@ function winGame(){
   $('badges').innerHTML=badges.map(b=>`<span class="badge">${b}</span>`).join('');
   const thisRound=seenWords.length&&world==='word'?seenWords:[];
   $('learned').innerHTML=thisRound.length?'Words you practiced: '+[...new Set(thisRound)].map(w=>`<b>${w}</b>`).join(''):'';
+  $('explain').innerHTML = world==='water' ? `<div class="explain"><h3>Explain the water cycle</h3>${CYCLE_SVG}<ol class="story">${STORY.map(x=>`<li>${x}</li>`).join('')}</ol>
+    <button class="icon-btn" onclick="say(STORY.join(' '))">Read it to me</button>
+    <p class="tip">Practice: say the water cycle out loud in your own words, then try writing it down.</p></div>` : '';
   say(`You saved the day! You got ${firstTry} out of ${TOTAL} on the first try!`);
   confetti();
 }
