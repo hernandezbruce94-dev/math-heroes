@@ -434,9 +434,11 @@ function renderAll(){renderTop();renderHeroes();renderWorlds();renderModes();}
 let deferredInstall=null;
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;$('installBtn').classList.add('show');});
 $('installBtn').onclick=async()=>{if(!deferredInstall)return;deferredInstall.prompt();await deferredInstall.userChoice;deferredInstall=null;$('installBtn').classList.remove('show');};
-if('serviceWorker' in navigator&&location.protocol==='https:'&&window.top===window.self){
-  addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});
-}
+try{
+  if(location.protocol==='https:'&&window.top===window.self&&'serviceWorker' in navigator){
+    addEventListener('load',()=>{try{navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}});
+  }
+}catch(e){}
 
 /* ---------- boot ---------- */
 const had=loadSave();
