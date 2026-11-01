@@ -35,7 +35,7 @@ Based on a first-grade water cycle study guide.
 - **Super Mode**: 3 right in a row powers up the hero for double stars and bigger attacks
 - **Boss round** on the final problem, villain speech bubbles, particle effects, and confetti
 - Ranks from Rookie Hero to Legend (reset when the page reloads)
-- Problems and words are read aloud with the browser's built-in voice
+- Problems and words are read aloud in a deep, heroic voice; the game picks the best male voice on the device, and a **Voice** menu lets you choose another
 - **Test sound** button on the start screen and a Sound On/Off toggle during play
 - Big tap-friendly buttons; works on desktop, tablet, and phone
 
@@ -45,7 +45,7 @@ Tap **Test sound** on the start screen. You should hear 3 beeps and a voice. If 
 
 - Turn the device volume up.
 - On iPhone or iPad, turn off Silent mode.
-- Use Chrome, Edge, or Safari, which include built-in reading voices.
+- Use Chrome, Edge, or Safari, which include built-in reading voices. Edge on Windows usually has the most natural male voices.
 
 ## Privacy
 
