@@ -217,7 +217,9 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
     </div>
 
     <button class="big-btn" id="goBtn">LET'S GO!</button>
-    <p class="parent">Tip: Word World and Water World read out loud, so turn your sound on. Get 3 right in a row for SUPER MODE.</p>
+    <div style="text-align:center;margin-top:16px"><button class="icon-btn" id="soundCheckBtn" style="font-size:18px;padding:8px 20px">Test sound</button></div>
+    <p class="parent" id="soundMsg">Tap "Test sound" to make sure you can hear the game. Word World and Water World read out loud.</p>
+    <p class="parent">Get 3 right in a row for SUPER MODE.</p>
   </section>
 
   <!-- BATTLE -->
@@ -226,6 +228,7 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
       <span class="pill" id="progress">Round 1 of 10</span>
       <span class="pill" id="starCount">★ 0</span>
       <span>
+        <button class="icon-btn" id="soundBtn">Sound: On</button>
         <button class="icon-btn" id="speakBtn">Read to me</button>
         <button class="icon-btn" id="quitBtn">Home</button>
       </span>
@@ -741,10 +744,46 @@ function confetti(){
 
 /* ================= SPEECH + SOUND ================= */
 let autoRead=false;
-function say(t){try{if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.85;u.pitch=1.1;speechSynthesis.speak(u);}catch(e){}}
-let actx;
+/* Sound: unlock audio on the first tap (required by iPhone/iPad and Chrome), pick an English voice,
+   and work around browsers that drop speech right after cancel(). */
+let soundOn=true, unlocked=false, voice=null, lastUtter=null, actx;
+const synth=('speechSynthesis' in window)?window.speechSynthesis:null;
+function pickVoice(){if(!synth)return;const vs=synth.getVoices();if(!vs.length)return;
+  voice=vs.find(v=>/^en[-_]US/i.test(v.lang)&&/Samantha|Google US English|Aria|Jenny|Zira|Ava|Allison/i.test(v.name))
+     ||vs.find(v=>/^en[-_]US/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||vs[0];}
+if(synth){pickVoice();synth.onvoiceschanged=pickVoice;}
+function getCtx(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state!=='running')actx.resume();}catch(e){}return actx}
+function unlockAudio(){
+  const c=getCtx();
+  try{const b=c.createBuffer(1,1,22050),src=c.createBufferSource();src.buffer=b;src.connect(c.destination);src.start(0);}catch(e){}
+  if(!unlocked&&synth){unlocked=true;try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;synth.speak(u);}catch(e){}}
+}
+['pointerdown','touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
+function speakNow(t){
+  const u=new SpeechSynthesisUtterance(t);u.lang='en-US';if(voice)u.voice=voice;u.rate=.85;u.pitch=1.1;u.volume=1;
+  lastUtter=u; // keep a reference so Chrome does not drop it
+  synth.speak(u);
+}
+function say(t){
+  if(!soundOn||!synth||!t)return;
+  try{
+    if(synth.paused)synth.resume();
+    if(synth.speaking||synth.pending){synth.cancel();setTimeout(()=>speakNow(t),80);}
+    else speakNow(t);
+  }catch(e){}
+}
+function soundCheck(){
+  unlockAudio();soundOn=true;updateSoundBtn();
+  [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,.18,'square',.09),i*120));
+  const msg=$('soundMsg');
+  if(!synth){msg.textContent='Beeps work, but this browser cannot read out loud. Try Chrome, Edge, or Safari.';return;}
+  say('Sound check! Hi hero, can you hear me?');
+  setTimeout(()=>{ if(synth&&!synth.getVoices().length) msg.textContent='If you hear beeps but no voice, this device may not have a reading voice installed. Try Chrome, Edge, or Safari.';
+    else msg.textContent='You should hear 3 beeps and a voice. No sound? Turn the volume up. On iPhone or iPad, turn off Silent mode.'; },700);
+}
+function updateSoundBtn(){const b=$('soundBtn');if(b)b.textContent=soundOn?'Sound: On':'Sound: Off';}
 function tone(f,d,type='square',v=.08,slide){
-  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();
+  if(!soundOn)return;try{getCtx();const o=actx.createOscillator(),g=actx.createGain();
   o.type=type;o.frequency.value=f;if(slide)o.frequency.exponentialRampToValueAtTime(slide,actx.currentTime+d);
   g.gain.setValueAtTime(v,actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+d);
   o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+d);}catch(e){}
@@ -759,10 +798,12 @@ function sfx(k){
   if(k==='win')[523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,.25,'square',.07),i*150));
 }
 
-$('goBtn').onclick=()=>{sfx('click');startGame();};
+$('goBtn').onclick=()=>{unlockAudio();sfx('click');startGame();};
 $('againBtn').onclick=startGame;
 $('homeBtn').onclick=()=>{updateRank();show('start')};
-$('quitBtn').onclick=()=>{speechSynthesis&&speechSynthesis.cancel();show('start')};
+$('quitBtn').onclick=()=>{synth&&synth.cancel();show('start')};
+$('soundCheckBtn').onclick=soundCheck;
+$('soundBtn').onclick=()=>{soundOn=!soundOn;if(!soundOn&&synth)synth.cancel();updateSoundBtn();if(soundOn)say(current?current.speak:'Sound on');};
 $('speakBtn').onclick=()=>{autoRead=true;say(current.speak);};
 </script>
 </body>
