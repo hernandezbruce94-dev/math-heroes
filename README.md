@@ -36,7 +36,16 @@ Based on a first-grade water cycle study guide.
 - **Boss round** on the final problem, villain speech bubbles, particle effects, and confetti
 - Ranks from Rookie Hero to Legend (reset when the page reloads)
 - Problems and words are read aloud with the browser's built-in voice
+- **Test sound** button on the start screen and a Sound On/Off toggle during play
 - Big tap-friendly buttons; works on desktop, tablet, and phone
+
+## No sound?
+
+Tap **Test sound** on the start screen. You should hear 3 beeps and a voice. If not:
+
+- Turn the device volume up.
+- On iPhone or iPad, turn off Silent mode.
+- Use Chrome, Edge, or Safari, which include built-in reading voices.
 
 ## Privacy
 
