@@ -217,7 +217,11 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
     </div>
 
     <button class="big-btn" id="goBtn">LET'S GO!</button>
-    <div style="text-align:center;margin-top:16px"><button class="icon-btn" id="soundCheckBtn" style="font-size:18px;padding:8px 20px">Test sound</button></div>
+    <div style="text-align:center;margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center">
+      <button class="icon-btn" id="soundCheckBtn" style="font-size:18px;padding:8px 20px">Test sound</button>
+      <label style="color:#fff;font-weight:900">Voice
+        <select id="voicePick" aria-label="Reading voice" style="font:800 16px Nunito;padding:6px 10px;border:3px solid var(--ink);border-radius:999px;max-width:260px"><option>Loading voices…</option></select></label>
+    </div>
     <p class="parent" id="soundMsg">Tap "Test sound" to make sure you can hear the game. Word World and Water World read out loud.</p>
     <p class="parent">Get 3 right in a row for SUPER MODE.</p>
   </section>
@@ -748,10 +752,20 @@ let autoRead=false;
    and work around browsers that drop speech right after cancel(). */
 let soundOn=true, unlocked=false, voice=null, lastUtter=null, actx;
 const synth=('speechSynthesis' in window)?window.speechSynthesis:null;
-function pickVoice(){if(!synth)return;const vs=synth.getVoices();if(!vs.length)return;
-  voice=vs.find(v=>/^en[-_]US/i.test(v.lang)&&/Samantha|Google US English|Aria|Jenny|Zira|Ava|Allison/i.test(v.name))
-     ||vs.find(v=>/^en[-_]US/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||vs[0];}
-if(synth){pickVoice();synth.onvoiceschanged=pickVoice;}
+// Heroic male voices, best first (Edge/Windows natural voices, Chrome, Apple)
+const MALE=[/Andrew/i,/Guy/i,/Christopher/i,/Brian/i,/Davis/i,/Eric/i,/Roger/i,/Steffan/i,/Ryan/i,/Thomas/i,
+  /Google UK English Male/i,/Daniel/i,/Aaron/i,/Arthur/i,/Evan/i,/Nathan/i,/\bTom\b/i,/Rishi/i,/Alex\b/i,/David/i,/Mark/i,/Fred/i,/Ralph/i,/\bmale\b/i];
+const isMale=v=>MALE.some(r=>r.test(v.name))&&!/female/i.test(v.name);
+let voiceList=[], userPicked=false;
+function maleRank(v){const i=MALE.findIndex(r=>r.test(v.name));return i<0?99:i}
+function pickVoice(){if(!synth)return;const vs=synth.getVoices().filter(v=>/^en/i.test(v.lang));if(!vs.length)return;
+  const males=vs.filter(isMale).sort((a,b)=>maleRank(a)-maleRank(b)||(/en[-_]US/i.test(b.lang)-/en[-_]US/i.test(a.lang)));
+  voiceList=[...males,...vs.filter(v=>!isMale(v))];
+  if(!userPicked) voice=voiceList[0];
+  fillVoicePicker();}
+function fillVoicePicker(){const sel=document.getElementById('voicePick');if(!sel)return;
+  sel.innerHTML=voiceList.map((v,i)=>`<option value="${i}" ${v===voice?'selected':''}>${isMale(v)?'Hero: ':''}${v.name.replace(/Microsoft |Online \(Natural\)| - English \(.*\)/g,'').trim()} (${v.lang})</option>`).join('');}
+if(synth){pickVoice();synth.onvoiceschanged=pickVoice;setTimeout(pickVoice,500);setTimeout(pickVoice,1500);}
 function getCtx(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state!=='running')actx.resume();}catch(e){}return actx}
 function unlockAudio(){
   const c=getCtx();
@@ -760,7 +774,9 @@ function unlockAudio(){
 }
 ['pointerdown','touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
 function speakNow(t){
-  const u=new SpeechSynthesisUtterance(t);u.lang='en-US';if(voice)u.voice=voice;u.rate=.85;u.pitch=1.1;u.volume=1;
+  const u=new SpeechSynthesisUtterance(t);u.lang=voice?voice.lang:'en-US';if(voice)u.voice=voice;
+  // deep, strong hero delivery; a lighter voice gets pitched down further
+  const male=voice&&isMale(voice);u.rate=male?.9:.88;u.pitch=male?.8:.55;u.volume=1;
   lastUtter=u; // keep a reference so Chrome does not drop it
   synth.speak(u);
 }
@@ -777,7 +793,7 @@ function soundCheck(){
   [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,.18,'square',.09),i*120));
   const msg=$('soundMsg');
   if(!synth){msg.textContent='Beeps work, but this browser cannot read out loud. Try Chrome, Edge, or Safari.';return;}
-  say('Sound check! Hi hero, can you hear me?');
+  say('Never fear, hero! I am here to help you save the day. Can you hear me?');
   setTimeout(()=>{ if(synth&&!synth.getVoices().length) msg.textContent='If you hear beeps but no voice, this device may not have a reading voice installed. Try Chrome, Edge, or Safari.';
     else msg.textContent='You should hear 3 beeps and a voice. No sound? Turn the volume up. On iPhone or iPad, turn off Silent mode.'; },700);
 }
@@ -803,6 +819,7 @@ $('againBtn').onclick=startGame;
 $('homeBtn').onclick=()=>{updateRank();show('start')};
 $('quitBtn').onclick=()=>{synth&&synth.cancel();show('start')};
 $('soundCheckBtn').onclick=soundCheck;
+$('voicePick').onchange=e=>{voice=voiceList[+e.target.value];userPicked=true;unlockAudio();say('Never fear, hero! Let\'s save the day!');};
 $('soundBtn').onclick=()=>{soundOn=!soundOn;if(!soundOn&&synth)synth.cancel();updateSoundBtn();if(soundOn)say(current?current.speak:'Sound on');};
 $('speakBtn').onclick=()=>{autoRead=true;say(current.speak);};
 </script>
