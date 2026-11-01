@@ -2,192 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Math Heroes: Save the City</title>
+<meta name="description" content="A free superhero learning game for first graders: math, reading, spelling, and the water cycle.">
+<meta name="theme-color" content="#141f55">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Math Heroes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
-<style>
-:root{
-  --sky:#141f55; --sky2:#2f49b5; --yellow:#ffd23f; --red:#e63946; --blue:#2a9df4;
-  --green:#2ec27e; --ink:#14142b; --white:#fffdf5; --purple:#7b2cbf; --orange:#ff8c00;
-  --hero:#2a9df4;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);
-  background:radial-gradient(circle at 50% 0%,var(--sky2),var(--sky) 70%);min-height:100vh;overflow-x:hidden}
-body.word-world{background:radial-gradient(circle at 50% 0%,#8a3ffc,#2b0d5c 70%)}
-body.water-world{background:radial-gradient(circle at 50% 0%,#1fb5c9,#073b5c 70%)}
-#fx{position:fixed;inset:0;z-index:0;pointer-events:none}
-.city{position:fixed;left:0;right:0;bottom:0;height:160px;z-index:0;pointer-events:none}
-main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px 180px}
-.flash{position:fixed;inset:0;background:#fff;z-index:6;pointer-events:none;opacity:0}
-.flash.go{animation:flash .45s}
-@keyframes flash{0%{opacity:.85}100%{opacity:0}}
-.screen{display:none}
-.screen.active{display:block;animation:pop .35s ease}
-@keyframes pop{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
-.shakeall{animation:shakeall .35s}
-@keyframes shakeall{25%{transform:translate(-6px,3px)}50%{transform:translate(6px,-3px)}75%{transform:translate(-4px,2px)}}
-
-.title{text-align:center;font-family:'Bangers';color:var(--yellow);font-size:clamp(50px,10vw,92px);line-height:.95;letter-spacing:3px;
-  text-shadow:4px 4px 0 var(--red),8px 8px 0 var(--ink);transform:rotate(-2deg);margin:10px 0 6px;animation:titlefloat 3s ease-in-out infinite}
-@keyframes titlefloat{50%{transform:rotate(-2deg) translateY(-6px)}}
-.subtitle{text-align:center;color:#fff;font-size:20px;margin-bottom:10px}
-.rank{text-align:center;margin-bottom:18px}
-.rank span{display:inline-block;background:#0007;color:var(--yellow);border:3px solid var(--yellow);border-radius:999px;padding:5px 16px;font-weight:900}
-.panel{background:var(--white);border:5px solid var(--ink);border-radius:22px;box-shadow:8px 8px 0 var(--ink);padding:22px;margin-bottom:22px}
-.panel h2{font-family:'Bangers';font-size:32px;letter-spacing:1.5px;margin-bottom:12px;color:var(--purple)}
-.grid{display:grid;gap:14px}
-.heroes{grid-template-columns:repeat(4,1fr)}
-.modes{grid-template-columns:repeat(2,1fr)}
-.worlds{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
-@media(max-width:600px){.worlds{grid-template-columns:1fr}}
-@media(max-width:600px){.heroes{grid-template-columns:repeat(2,1fr)}.modes{grid-template-columns:1fr}}
-.pick{background:#fff;border:4px solid var(--ink);border-radius:18px;padding:12px 8px;cursor:pointer;text-align:center;
-  font:800 18px 'Nunito';transition:transform .12s,box-shadow .12s;box-shadow:4px 4px 0 var(--ink);color:var(--ink)}
-.pick:hover{transform:translateY(-3px)}
-.pick.sel{background:var(--yellow);box-shadow:4px 4px 0 var(--red);transform:translateY(-3px)}
-.pick svg{width:80px;height:80px;display:block;margin:0 auto 4px}
-.pick small{display:block;font-weight:700;font-size:14px;color:#555}
-.world{font-family:'Bangers';font-size:30px;letter-spacing:1.5px;padding:14px 8px;color:#fff}
-.world small{color:#fffc;font-family:'Nunito';font-size:14px;letter-spacing:0}
-.world.math{background:var(--blue)}.world.word{background:var(--purple)}.world.water{background:#0f8fa8}
-.world.sel{background:var(--yellow);color:var(--ink)}.world.sel small{color:#444}
-.big-btn{display:block;margin:0 auto;font-family:'Bangers';font-size:40px;letter-spacing:2px;color:#fff;background:var(--red);
-  border:5px solid var(--ink);border-radius:20px;padding:12px 48px;box-shadow:6px 6px 0 var(--ink);cursor:pointer;transition:transform .1s;animation:pulse 1.6s infinite}
-@keyframes pulse{50%{transform:scale(1.05)}}
-.big-btn:active{transform:translate(3px,3px);box-shadow:3px 3px 0 var(--ink)}
-
-/* battle */
-.hud{display:flex;justify-content:space-between;align-items:center;color:#fff;font-weight:900;font-size:20px;margin-bottom:14px;gap:10px;flex-wrap:wrap}
-.hud .pill{background:#0006;border:3px solid #fff;border-radius:999px;padding:6px 16px}
-.icon-btn{background:var(--yellow);border:3px solid var(--ink);border-radius:999px;padding:6px 14px;font:900 16px 'Nunito';cursor:pointer;box-shadow:3px 3px 0 var(--ink);color:var(--ink)}
-.combo{display:flex;align-items:center;gap:10px;color:#fff;font-weight:900;margin-bottom:6px}
-.combo .bar{flex:1;height:14px;background:#0006;border:3px solid #fff;border-radius:999px;overflow:hidden}
-.combo .bar div{height:100%;width:0;background:linear-gradient(90deg,var(--yellow),var(--orange),var(--red));transition:width .3s}
-.combo.super .bar div{animation:rainbow .6s linear infinite}
-@keyframes rainbow{50%{filter:hue-rotate(180deg) brightness(1.3)}}
-.combo .lbl{font-family:'Bangers';font-size:22px;letter-spacing:1px;min-width:150px;text-align:right}
-.arena{display:flex;justify-content:space-between;align-items:flex-end;position:relative;height:200px;margin-bottom:8px}
-.fighter{width:150px;text-align:center;position:relative}
-.fighter svg{width:140px;height:150px}
-.hero .body{animation:float 2.4s ease-in-out infinite}
-.villain .body{animation:float 3s ease-in-out infinite reverse}
-@keyframes float{50%{transform:translateY(-10px)}}
-.super-on .hero .body{filter:drop-shadow(0 0 14px var(--yellow)) drop-shadow(0 0 28px var(--hero))}
-.hp{height:20px;background:#0005;border:3px solid #fff;border-radius:999px;overflow:hidden;margin-top:4px}
-.hp>div{height:100%;background:var(--green);transition:width .5s}
-.villain .hp>div{background:var(--red)}
-.name{color:#fff;font-family:'Bangers';font-size:22px;letter-spacing:1px}
-.bubble{position:absolute;top:-6px;right:150px;background:#fff;border:3px solid var(--ink);border-radius:16px;padding:6px 12px;font-weight:900;font-size:15px;
-  width:max-content;max-width:200px;opacity:0;transform:scale(.6);transition:all .25s;pointer-events:none;z-index:3}
-.bubble.show{opacity:1;transform:scale(1)}
-.bubble::after{content:'';position:absolute;right:-12px;top:18px;border:8px solid transparent;border-left-color:var(--ink)}
-.blast{position:absolute;top:60px;left:150px;width:44px;height:44px;border-radius:50%;
-  background:radial-gradient(circle,#fff,var(--yellow) 35%,var(--hero));box-shadow:0 0 30px var(--hero),0 0 60px var(--yellow);opacity:0;z-index:2}
-.blast.go{animation:shoot .5s ease-in forwards}
-.blast.mega{width:80px;height:80px;top:42px}
-@keyframes shoot{0%{opacity:1;transform:translateX(0) scale(.5)}100%{opacity:1;transform:translateX(calc(var(--dist)*1px)) scale(1.6)}}
-.shake{animation:shake .4s}
-@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px) rotate(-5deg)}40%{transform:translateX(12px) rotate(5deg)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
-.bounce{animation:bounce .5s}
-@keyframes bounce{50%{transform:translateY(-24px)}}
-.boom{position:absolute;right:20px;top:20px;font-family:'Bangers';font-size:58px;color:var(--yellow);z-index:3;
-  text-shadow:3px 3px 0 var(--red),5px 5px 0 var(--ink);opacity:0;pointer-events:none}
-.boom.show{animation:boom .8s forwards}
-@keyframes boom{0%{opacity:0;transform:scale(.3) rotate(-15deg)}30%{opacity:1;transform:scale(1.25) rotate(8deg)}100%{opacity:0;transform:scale(1) rotate(0)}}
-.banner{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%) scale(0);font-family:'Bangers';font-size:clamp(46px,9vw,84px);color:var(--yellow);
-  text-shadow:4px 4px 0 var(--red),8px 8px 0 var(--ink);z-index:7;pointer-events:none;white-space:nowrap;letter-spacing:3px}
-.banner.show{animation:banner 1.4s forwards}
-@keyframes banner{0%{transform:translate(-50%,-50%) scale(0) rotate(-10deg)}20%{transform:translate(-50%,-50%) scale(1.15) rotate(3deg)}80%{transform:translate(-50%,-50%) scale(1) rotate(0);opacity:1}100%{transform:translate(-50%,-50%) scale(1.3);opacity:0}}
-
-.question{text-align:center;position:relative}
-.boss-tag{display:none;position:absolute;top:-18px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font-family:'Bangers';font-size:22px;letter-spacing:2px;
-  border:3px solid var(--ink);border-radius:999px;padding:2px 18px}
-.boss .boss-tag{display:block}
-.question.boss{animation:bossglow 1s infinite}
-@keyframes bossglow{50%{box-shadow:8px 8px 0 var(--ink),0 0 30px var(--red)}}
-.prompt{font-weight:900;font-size:22px;color:var(--purple);margin-bottom:6px}
-.problem{font-family:'Bangers';font-size:clamp(64px,14vw,110px);letter-spacing:4px;color:var(--ink);line-height:1}
-.problem .q{color:var(--red)}
-.problem.word{font-family:'Nunito';font-weight:900;letter-spacing:6px;font-size:clamp(54px,12vw,90px)}
-.problem .blank{display:inline-block;width:.75em;height:.8em;border-bottom:8px solid var(--red);margin:0 .08em;vertical-align:baseline}
-.pic{font-size:clamp(70px,16vw,110px);line-height:1.1}
-.listen{font-family:'Bangers';font-size:30px;letter-spacing:2px;background:var(--blue);color:#fff;border:4px solid var(--ink);border-radius:999px;padding:8px 28px;
-  box-shadow:4px 4px 0 var(--ink);cursor:pointer;margin:6px 4px}
-.listen.peek{background:#fff;color:var(--ink);font-size:22px;padding:6px 18px}
-.visual:empty{min-height:0;margin:0}
-.visual{min-height:56px;display:flex;justify-content:center;align-items:center;gap:18px;flex-wrap:wrap;margin:10px 0 4px}
-.dots{display:flex;flex-wrap:wrap;gap:5px;max-width:190px;justify-content:center}
-.dot{width:22px;height:22px;border-radius:50%;background:var(--blue);border:2px solid var(--ink)}
-.dot.b{background:var(--yellow)}
-.dot.x{background:#ccc;position:relative}
-.dot.x::after{content:'';position:absolute;left:-3px;right:-3px;top:8px;height:3px;background:var(--red);transform:rotate(-45deg)}
-.op{font-family:'Bangers';font-size:40px}
-.answers{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}
-@media(max-width:600px){.answers{grid-template-columns:repeat(2,1fr)}}
-.ans{font-family:'Bangers';font-size:56px;padding:10px 0;border:5px solid var(--ink);border-radius:20px;cursor:pointer;
-  box-shadow:5px 5px 0 var(--ink);color:#fff;transition:transform .1s}
-.ans.txt{font-family:'Nunito';font-weight:900;font-size:clamp(28px,6vw,40px);letter-spacing:1px;padding:16px 0}
-.ans:nth-child(1){background:var(--blue)}.ans:nth-child(2){background:var(--green)}
-.ans:nth-child(3){background:var(--purple)}.ans:nth-child(4){background:var(--orange)}
-.ans:hover{transform:translateY(-4px)}
-.ans:disabled{opacity:.3;cursor:default;transform:none}
-.ans.right{background:var(--yellow)!important;color:var(--ink);opacity:1}
-/* spelling */
-.slots{display:flex;justify-content:center;gap:10px;margin:12px 0}
-.slot{width:64px;height:76px;border:4px dashed var(--ink);border-radius:14px;font:900 46px 'Nunito';display:flex;align-items:center;justify-content:center;background:#fff}
-.slot.f{border-style:solid;background:#e9f5ff}
-.slot.lock{background:#d8f5e5;border-color:var(--green)}
-.slots.bad .slot{border-color:var(--red);animation:shake .4s}
-.tiles{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:8px}
-.tile{width:64px;height:64px;border:4px solid var(--ink);border-radius:14px;background:var(--yellow);font:900 38px 'Nunito';cursor:pointer;box-shadow:4px 4px 0 var(--ink);color:var(--ink)}
-.tile:disabled{opacity:.25;cursor:default}
-.undo{margin-top:12px}
-@media(max-width:600px){.bubble{right:0;top:-34px;font-size:13px;max-width:170px}.bubble::after{right:30px;top:auto;bottom:-14px;border-left-color:transparent;border-top-color:var(--ink)}}
-@media(max-width:420px){.slot{width:52px;height:64px;font-size:38px}.tile{width:54px;height:54px;font-size:32px}}
-.qbox{display:flex;align-items:center;gap:16px;justify-content:center;text-align:left;margin:4px auto 6px;max-width:680px}
-.qbox .pic{font-size:clamp(56px,12vw,80px);flex:none}
-.qtext{font-weight:900;font-size:clamp(22px,4.6vw,30px);line-height:1.25}
-.ans.long{font-family:'Nunito';font-weight:900;font-size:clamp(18px,3.6vw,22px);letter-spacing:0;padding:14px 12px;line-height:1.25;min-height:76px}
-.answers.long{grid-template-columns:repeat(2,1fr)}
-@media(max-width:600px){.answers.long{grid-template-columns:1fr}}
-.hintbox{background:#e6f7fb;border:3px solid #0f8fa8;border-radius:14px;padding:10px 14px;font-weight:800;font-size:18px;max-width:640px;margin:0 auto;text-align:left}
-.story{list-style:none;max-width:680px;margin:6px auto 4px;text-align:left;counter-reset:st}
-.story li{counter-increment:st;background:#e6f7fb;border:3px solid #0f8fa8;border-radius:12px;padding:8px 12px 8px 46px;margin-bottom:8px;font-weight:800;font-size:18px;position:relative}
-.story li::before{content:counter(st);position:absolute;left:10px;top:7px;width:26px;height:26px;border-radius:50%;background:#0f8fa8;color:#fff;font-weight:900;text-align:center;line-height:26px}
-.story li.new{animation:pop .4s}
-.explain{max-width:680px;margin:16px auto 0;text-align:left;background:#e6f7fb;border:4px solid #0f8fa8;border-radius:18px;padding:16px}
-.explain h3{font-family:'Bangers';letter-spacing:1px;font-size:28px;color:#0f6f84;margin-bottom:6px}
-.explain .tip{font-size:15px;font-weight:800;color:#444;margin-top:8px}
-.cycle-svg{width:100%;max-width:520px;display:block;margin:6px auto}
-.feedback{min-height:40px;text-align:center;font-weight:900;font-size:24px;margin-top:14px}
-.feedback.good{color:var(--green)}.feedback.try{color:var(--red)}
-
-/* win */
-.win{text-align:center}
-.medal{font-family:'Bangers';font-size:72px;color:var(--yellow);text-shadow:4px 4px 0 var(--red),7px 7px 0 var(--ink)}
-.starrow{font-size:64px;color:var(--yellow);letter-spacing:8px;text-shadow:3px 3px 0 var(--ink);margin:6px 0}
-.starrow .off{color:#14142b30;text-shadow:none}
-.win p{font-size:22px;font-weight:800;margin:8px 0 14px}
-.row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-.row .big-btn{margin:0;font-size:30px;padding:10px 28px;animation:none}
-.row .alt{background:var(--blue)}
-.badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px}
-.badge{background:var(--yellow);border:3px solid var(--ink);border-radius:999px;padding:4px 12px;font-weight:900;font-size:15px}
-.learned{margin:12px auto 0;max-width:560px;font-weight:800;color:#444}
-.learned b{display:inline-block;background:#efe6ff;border:2px solid var(--purple);border-radius:8px;padding:1px 8px;margin:3px;color:var(--purple)}
-.confetti{position:fixed;top:-20px;width:12px;height:18px;z-index:5;pointer-events:none;animation:fall linear forwards}
-@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
-.parent{color:#fffc;text-align:center;font-size:14px;margin-top:10px}
-@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
-</style>
+<link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body class="math-world">
 <canvas id="fx"></canvas>
 <div class="flash" id="flash"></div>
 <div class="banner" id="banner">SUPER MODE!</div>
+<div class="toast" id="toast" role="status"></div>
 <svg class="city" viewBox="0 0 1200 160" preserveAspectRatio="none" aria-hidden="true">
   <path fill="#0d1440" d="M0 160V70h60V40h50v50h40V20h70v70h30V60h60v100zM330 160V50h80v30h40V10h60v90h50V60h70v100zM700 160V30h70v40h50V80h40V40h80v120zM960 160V60h60V20h60v60h40V50h80v110z"/>
   <g fill="#ffd23f99"><rect x="80" y="55" width="10" height="10"/><rect x="170" y="35" width="10" height="10"/><rect x="190" y="65" width="10" height="10"/><rect x="460" y="30" width="10" height="10"/><rect x="480" y="60" width="10" height="10"/><rect x="720" y="50" width="10" height="10"/><rect x="900" y="60" width="10" height="10"/><rect x="1040" y="40" width="10" height="10"/><rect x="1150" y="70" width="10" height="10"/></g>
@@ -196,9 +28,17 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
 <main id="main">
   <!-- START -->
   <section id="start" class="screen active">
+    <div class="topbar">
+      <div class="rank"><span id="rankTag">Rookie Hero · 0 XP</span> <span id="starTag">★ 0</span></div>
+      <div class="btnrow" style="margin:0">
+        <button class="sm-btn" id="soundCheckBtn">Test sound</button>
+        <button class="sm-btn on" id="musicBtn">Music: On</button>
+        <button class="sm-btn" id="parentBtn">Grown-ups</button>
+      </div>
+    </div>
     <div class="title">MATH HEROES!</div>
-    <p class="subtitle">Villains are attacking. Use your brain power to save the day.</p>
-    <div class="rank"><span id="rankTag">Rank: Rookie Hero · 0 XP</span></div>
+    <p class="subtitle" id="welcome">Villains are attacking. Use your brain power to save the day.</p>
+    <p class="parent" id="soundMsg">Tap "Test sound" to make sure you can hear the hero voice.</p>
 
     <div class="panel">
       <h2>1. Pick your hero</h2>
@@ -208,22 +48,17 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
     <div class="panel">
       <h2>2. Pick your world</h2>
       <div class="worlds">
-        <button class="pick world math sel" data-world="math">Math City<small>Adding &amp; taking away</small></button>
+        <button class="pick world math sel" data-world="math">Math City<small>Numbers, time &amp; money</small></button>
         <button class="pick world word" data-world="word">Word World<small>Reading &amp; spelling</small></button>
         <button class="pick world water" data-world="water">Water World<small>The water cycle</small></button>
       </div>
-      <h2 style="font-size:26px">3. Pick your mission</h2>
+      <h2 style="font-size:26px">3. Pick your mission <span class="voicechip" id="lvlTag" style="color:var(--green)"></span></h2>
       <div class="grid modes" id="modePicks"></div>
     </div>
 
     <button class="big-btn" id="goBtn">LET'S GO!</button>
-    <div style="text-align:center;margin-top:16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center">
-      <button class="icon-btn" id="soundCheckBtn" style="font-size:18px;padding:8px 20px">Test sound</button>
-      <label style="color:#fff;font-weight:900">Voice
-        <select id="voicePick" aria-label="Reading voice" style="font:800 16px Nunito;padding:6px 10px;border:3px solid var(--ink);border-radius:999px;max-width:260px"><option>Loading voices…</option></select></label>
-    </div>
-    <p class="parent" id="soundMsg">Tap "Test sound" to make sure you can hear the game. Word World and Water World read out loud.</p>
-    <p class="parent">Get 3 right in a row for SUPER MODE.</p>
+    <div style="text-align:center;margin-top:14px"><button class="btn install" id="installBtn">Install as an app</button></div>
+    <p class="parent">Get 3 right in a row for SUPER MODE. Earn stars to unlock hero gear and the Mega Boss.</p>
   </section>
 
   <!-- BATTLE -->
@@ -231,6 +66,7 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
     <div class="hud">
       <span class="pill" id="progress">Round 1 of 10</span>
       <span class="pill" id="starCount">★ 0</span>
+      <span class="pill levelpill" id="lvlPill">Level 1</span>
       <span>
         <button class="icon-btn" id="soundBtn">Sound: On</button>
         <button class="icon-btn" id="speakBtn">Read to me</button>
@@ -245,7 +81,7 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
       <div class="fighter villain" id="villainBox"><div class="bubble" id="bubble">Ha!</div><div class="body" id="villainSvg"></div><div class="name" id="villainName">Dr. Minus</div><div class="hp"><div id="villainHp" style="width:100%"></div></div></div>
     </div>
     <div class="panel question" id="qpanel">
-      <div class="boss-tag">BOSS ROUND</div>
+      <div class="boss-tag" id="bossTag">BOSS ROUND</div>
       <div id="qbody"></div>
       <div class="feedback" id="feedback"></div>
     </div>
@@ -258,6 +94,7 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
       <div id="winHero"></div>
       <div class="starrow" id="winStars"></div>
       <p id="winText"></p>
+      <div id="unlocks"></div>
       <div class="badges" id="badges"></div>
       <div class="learned" id="learned"></div>
       <div id="explain"></div>
@@ -268,560 +105,89 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
       </div>
     </div>
   </section>
+
+  <!-- CREATOR -->
+  <section id="creator" class="screen">
+    <div class="panel">
+      <h2>Create your hero</h2>
+      <div class="creator">
+        <div class="prev" id="creatorPrev"></div>
+        <div>
+          <label class="field" for="kidName">Your name (the game will cheer for you)</label>
+          <input type="text" id="kidName" maxlength="16" placeholder="Your first name" autocomplete="off">
+          <label class="field" for="heroNameIn">Hero name</label>
+          <input type="text" id="heroNameIn" maxlength="16" placeholder="Captain Awesome" autocomplete="off">
+          <div class="field">Suit</div><div class="swatches" id="swSuit"></div>
+          <div class="field">Cape</div><div class="swatches" id="swCape"></div>
+          <div class="field">Mask</div><div class="swatches" id="swMask"></div>
+          <div class="field">Skin</div><div class="swatches" id="swSkin"></div>
+          <div class="field">Hair</div><div class="swatches" id="swHair"></div>
+          <div class="field">Emblem</div><div class="btnrow" style="margin-top:0" id="optEmblem"></div>
+          <div class="field">Power blast</div><div class="btnrow" style="margin-top:0" id="optBlast"></div>
+          <div class="btnrow"><button class="btn" id="saveHero">Save my hero</button><button class="btn ghost" id="cancelHero">Cancel</button></div>
+        </div>
+      </div>
+      <h2 style="font-size:24px;margin-top:18px">Hero gear to unlock</h2>
+      <p class="note" id="gearStars"></p>
+      <div class="gear" id="gearList"></div>
+    </div>
+  </section>
 </main>
 
-<script>
-/* ================= DATA ================= */
-const HEROES=[
-  {id:'bolt',name:'Captain Bolt',power:'Lightning',suit:'#2a9df4',cape:'#e63946',mask:'#14142b',emblem:'bolt',blast:'#2a9df4'},
-  {id:'blaze',name:'Blaze Girl',power:'Fire',suit:'#e63946',cape:'#ffd23f',mask:'#14142b',emblem:'star',blast:'#ff5a1f'},
-  {id:'rex',name:'Iron Rex',power:'Super Strength',suit:'#2ec27e',cape:'#7b2cbf',mask:'#14142b',emblem:'plus',blast:'#2ec27e'},
-  {id:'nova',name:'Star Nova',power:'Starlight',suit:'#7b2cbf',cape:'#2a9df4',mask:'#ffd23f',emblem:'star',blast:'#c77dff'}
-];
-const MODES={
-  math:[
-    {id:'add10',name:'Adding to 10',desc:'Like 3 + 4'},
-    {id:'add20',name:'Adding to 20',desc:'Like 8 + 7'},
-    {id:'sub10',name:'Taking Away',desc:'Like 9 − 3'},
-    {id:'mix',name:'Super Mix',desc:'Adding, taking away & missing numbers'}
-  ],
-  word:[
-    {id:'sight',name:'Sight Word Spotter',desc:'Hear a word, find it'},
-    {id:'spell',name:'Spell It!',desc:'Build the word with letters'},
-    {id:'missing',name:'Missing Letter',desc:'Fix the broken word'},
-    {id:'wordmix',name:'Word Mix',desc:'All three word games'}
-  ],
-  water:[
-    {id:'wvocab',name:'Water Words',desc:'Evaporation, lake, reservoir…'},
-    {id:'wcycle',name:'Cycle Steps',desc:'What happens next?'},
-    {id:'wfacts',name:'Fresh or Salt?',desc:'Kinds of water & Chesapeake'},
-    {id:'wstory',name:'Tell the Story',desc:'Explain the water cycle'}
-  ]
-};
-const VILLAINS={
-  math:{name:'Dr. Minus',skin:'#9be564',suit:'#5a189a',cape:'#3a0b4f',win:'CITY SAVED!',
-    taunts:['Ha! Numbers are MY weapon!','You will never add it up!','Try again, little hero!','My math is too tricky!'],
-    hurt:['Ouch! My numbers!','Nooo! You counted right!','Grr! Lucky guess!']},
-  word:{name:'The Scrambler',skin:'#ff9ecd',suit:'#0f7173',cape:'#06393a',win:'WORDS SAVED!',
-    taunts:['I mixed up all the letters!','You cannot read my tricks!','Try again, word hero!','Hee hee, spell THAT!'],
-    hurt:['Ack! You read it!','My letters! Unscrambled!','Grr! Super spelling!']},
-  water:{name:'Dr. Drought',skin:'#f4a259',suit:'#8c5a2b',cape:'#4a2c12',win:'WATER SAVED!',
-    taunts:['I will dry up all the water!','No more rain for you!','Ha! Think again, hero!','My heat is too strong!'],
-    hurt:['Splash! Not the water!','Nooo! You know the cycle!','Grr! Too smart!']}
-};
-/* Water cycle questions, taken from the class Water Cycle Study Guide */
-const WATER={
-  wvocab:[
-    {q:'Water is heated up and turns into water vapor (gas). What is it called?',a:'Evaporation',o:['Condensation','Precipitation','Reservoir'],pic:'♨️',h:'Evaporation: water is heated up and turns into water vapor (gas).'},
-    {q:'Water vapor (gas) cools and turns back into tiny water drops (liquid). What is it called?',a:'Condensation',o:['Evaporation','Precipitation','Cycle'],pic:'☁️',h:'Condensation: the gas turns back into a liquid and forms clouds.'},
-    {q:'Water falls down as rain, snow, sleet, or hail. What is it called?',a:'Precipitation',o:['Evaporation','Condensation','Ground water'],pic:'🌧️',h:'Precipitation: water falls down as rain, snow, sleet, or hail.'},
-    {q:'A body of water that is completely surrounded by land.',a:'Lake',o:['Ocean','River','Cloud'],pic:'🏞️',h:'A lake is completely surrounded by land. It has fresh water.'},
-    {q:'Flowing water that can empty into the ocean.',a:'River',o:['Lake','Puddle','Ground water'],pic:'🌊',h:'Rivers and streams flow and can empty into the ocean.'},
-    {q:'The largest body of water on earth. It covers about 75% of the earth.',a:'Ocean',o:['Lake','River','Pond'],pic:'🌍',h:'The ocean is the largest body of water. It is salt water.'},
-    {q:'Water that is under the ground, between rock layers.',a:'Ground water',o:['Ocean water','Rain','Clouds'],pic:'🪨',h:'Ground water (well water) is underground, between rock layers.'},
-    {q:'A place where water is collected on earth, like a lake, pond, or puddle.',a:'Reservoir',o:['Cycle','Condensation','Evaporation'],pic:'💧',h:'A reservoir is a place where water is collected. It can be man made or natural.'},
-    {q:'Something that repeats over and over again.',a:'Cycle',o:['Lake','Reservoir','Ocean'],pic:'🔄',h:'A cycle is continuous. It repeats over and over again.'},
-    {q:'What powers the water cycle?',a:'The sun',o:['The moon','The wind','The ocean'],pic:'☀️',h:'The sun powers the water cycle by causing evaporation.'},
-    {q:'Clouds, fog, and a foggy mirror after a hot shower are examples of…',a:'Condensation',o:['Evaporation','Precipitation','Ground water'],pic:'🌫️',h:'Clouds, fog, and water on the side of a cold glass are condensation.'},
-    {q:'Rain, hail, snow, and sleet are kinds of…',a:'Precipitation',o:['Evaporation','Condensation','Reservoirs'],pic:'🌨️',h:'Rain, hail, snow, and sleet are precipitation.'},
-    {q:'Lakes, ponds, the ocean, ground water, and puddles are all…',a:'Reservoirs',o:['Clouds','Cycles','Water vapor'],pic:'🏞️',h:'Lakes, ponds, ocean, ground water, and puddles are reservoirs.'},
-    {q:'Which one is a cycle?',a:'The seasons',o:['A rock','A chair','A pencil'],pic:'🍂',h:'The water cycle, life cycle, seasons, and day and night are cycles.'}
-  ],
-  wcycle:[
-    {q:'The sun heats the water. What happens first?',a:'Evaporation',o:['Precipitation','Condensation','Nothing'],pic:'☀️',h:'The sun heats water and it evaporates into water vapor.'},
-    {q:'After evaporation, the water vapor cools and makes clouds. What is that?',a:'Condensation',o:['Precipitation','Evaporation','Ground water'],pic:'☁️',h:'Condensation: the gas cools and turns back into a liquid and forms clouds.'},
-    {q:'After condensation, the drops get heavy and fall. What is that?',a:'Precipitation',o:['Evaporation','Condensation','Reservoir'],pic:'🌧️',h:'Precipitation: the drops get heavy and fall as rain, snow, sleet, or hail.'},
-    {q:'Rain falls into a lake. What happens next?',a:'The sun heats it again',o:['The cycle ends','The water turns to rock','The lake flies away'],pic:'🔄',h:'The water cycle has no end. It keeps going over and over.'},
-    {q:'What pulls the heavy water drops down to the earth?',a:'Gravity',o:['The wind','The moon','The clouds'],pic:'⬇️',h:'The drops get heavy and gravity pulls the water toward the earth.'},
-    {q:'Evaporation turns liquid water into…',a:'Water vapor (gas)',o:['Ice','Rocks','Salt'],pic:'♨️',h:'Evaporation changes liquid water into water vapor (gas).'},
-    {q:'Condensation turns water vapor (gas) back into…',a:'Tiny water drops (liquid)',o:['Sunshine','Sand','Wind'],pic:'💧',h:'Condensation turns water vapor back into tiny water drops (liquid).'},
-    {q:'Does the water cycle have a beginning or an end?',a:'No, it keeps going',o:['Yes, it ends at night','Yes, it ends in winter','Yes, it starts on Monday'],pic:'🔄',h:'The water cycle does not have a beginning or an end. It happens all over the earth at the same time.'},
-    {q:'Where does the water cycle happen?',a:'All over the earth',o:['Only in Chesapeake','Only at the beach','Only in the sky'],pic:'🌍',h:'The water cycle is happening all over the earth, all at the same time.'},
-    {q:'What does the sun\'s energy make that warms the earth?',a:'Heat',o:['Snow','Clouds','Rocks'],pic:'☀️',h:'The sun\'s energy produces heat that warms the earth.'}
-  ],
-  wfacts:[
-    {q:'Is a lake fresh water or salt water?',a:'Fresh water',o:['Salt water'],pic:'🏞️',h:'Lakes have fresh water.'},
-    {q:'Is a river fresh water or salt water?',a:'Fresh water',o:['Salt water'],pic:'🌊',h:'Rivers and streams have fresh water.'},
-    {q:'Is the ocean fresh water or salt water?',a:'Salt water',o:['Fresh water'],pic:'🐳',h:'The ocean is salt water.'},
-    {q:'Is ground water fresh water or salt water?',a:'Fresh water',o:['Salt water'],pic:'🪨',h:'Ground water (well water) is fresh water.'},
-    {q:'Can we drink ocean water?',a:'No, it is salt water',o:['Yes, it is fresh water'],pic:'🐟',h:'Ocean water is salt water. It is not used for drinking.'},
-    {q:'Where is ground water?',a:'Below ground',o:['Above ground','In the clouds','On the moon'],pic:'⬇️',h:'Ground water is below ground.'},
-    {q:'Where is ocean water?',a:'Above ground',o:['Below ground','In the clouds','Inside rocks'],pic:'🌊',h:'Ocean water is above ground.'},
-    {q:'How are ground water and ocean water the same?',a:'Both are water',o:['Both are salty','Both are underground','Both are clouds'],pic:'💧',h:'Ground water and ocean water are both water.'},
-    {q:'Chesapeake gets its water from…',a:'Lake Gaston',o:['The moon','A volcano','The Pacific Ocean'],pic:'🚰',h:'Chesapeake gets water from Lake Gaston, the Northwest River, and deep wells.'},
-    {q:'Which river gives Chesapeake water?',a:'The Northwest River',o:['The Moon River','The Candy River','The Rainbow River'],pic:'🏞️',h:'Chesapeake gets water from the Northwest River.'},
-    {q:'Chesapeake also gets water from deep…',a:'Wells',o:['Clouds','Caves','Volcanoes'],pic:'🪣',h:'Chesapeake gets water from deep wells around Chesapeake.'},
-    {q:'Why is water important?',a:'We need it to survive',o:['It is only for fun','We do not need it','Only fish need it'],pic:'💧',h:'People, plants, and animals all need water to survive.'},
-    {q:'How can animals get water?',a:'Drinking from lakes',o:['Eating rocks','From the moon','From the wind'],pic:'🦌',h:'Animals get water by eating plants, eating other animals, and drinking from lakes and rivers.'},
-    {q:'The water cycle gives the earth a…',a:'Continuous supply of water',o:['Lot of sand','Big rainbow','Pile of rocks'],pic:'🌍',h:'The water cycle provides the earth with a continuous supply of water.'}
-  ]
-};
-const STORY=[
-  'The sun heats the water in lakes, rivers, and oceans.',
-  'The water turns into water vapor (gas) and goes up. This is evaporation.',
-  'The water vapor cools and turns into tiny drops that make clouds. This is condensation.',
-  'The drops get heavy, and gravity pulls them down as rain, snow, sleet, or hail. This is precipitation.',
-  'The water collects in lakes, rivers, oceans, and ground water. Then the cycle starts again. It never ends.'
-];
-const STORY_WRONG=['The clouds turn into rocks and stay in the sky.','The water cycle stops and never starts again.','The moon heats the water and makes it salty.','The water turns into sand and blows away.'];
-const CYCLE_SVG=`<svg class="cycle-svg" viewBox="0 0 520 280" role="img" aria-label="Water cycle: the sun heats water, evaporation, condensation, precipitation, then water collects and the cycle repeats">
-<defs><marker id="ar" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0 0 8 4 0 8z" fill="#14142b"/></marker></defs>
-<rect width="520" height="280" rx="16" fill="#cdeefa"/>
-<circle cx="468" cy="44" r="26" fill="#ffd23f" stroke="#14142b" stroke-width="3"/>
-<text x="468" y="88" text-anchor="middle" font-family="Nunito" font-weight="900" font-size="13" fill="#14142b">Sun</text>
-<path d="M0 210 70 140 140 200 190 170 260 210z" fill="#7cb342" stroke="#14142b" stroke-width="3"/>
-<rect x="0" y="210" width="260" height="70" fill="#8d6e63" stroke="#14142b" stroke-width="3"/>
-<rect x="260" y="210" width="260" height="70" fill="#2a9df4" stroke="#14142b" stroke-width="3"/>
-<g fill="#fff" stroke="#14142b" stroke-width="3"><ellipse cx="90" cy="58" rx="56" ry="22"/><ellipse cx="270" cy="50" rx="52" ry="20"/></g>
-<g stroke="#1976d2" stroke-width="4" stroke-linecap="round"><path d="M62 92v14M82 96v14M102 92v14M122 96v14M72 118v12M112 118v12"/></g>
-<g fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"><path d="M380 198c-7-10 7-17 0-28s7-17 0-28"/><path d="M410 198c-7-10 7-17 0-28s7-17 0-28"/><path d="M440 198c-7-10 7-17 0-28s7-17 0-28"/></g>
-<g fill="none" stroke="#14142b" stroke-width="3" marker-end="url(#ar)">
-<path d="M410 128Q390 70 330 56"/><path d="M216 46Q182 34 152 48"/><path d="M180 232Q220 246 290 240"/></g>
-<g font-family="Nunito" font-weight="900" fill="#14142b">
-<rect x="336" y="98" width="130" height="24" rx="12" fill="#fff" stroke="#14142b" stroke-width="2"/><text x="401" y="115" text-anchor="middle" font-size="14">1. Evaporation</text>
-<rect x="214" y="4" width="112" height="0" rx="0" fill="#fff" stroke="#14142b" stroke-width="2"/><rect x="202" y="72" width="136" height="24" rx="12" fill="#fff" stroke="#14142b" stroke-width="2"/><text x="270" y="89" text-anchor="middle" font-size="14">2. Condensation</text>
-<rect x="132" y="96" width="136" height="24" rx="12" fill="#fff" stroke="#14142b" stroke-width="2"/><text x="200" y="113" text-anchor="middle" font-size="14">3. Precipitation</text>
-<text x="130" y="262" text-anchor="middle" font-size="13" fill="#fff">Ground water (fresh)</text>
-<text x="390" y="262" text-anchor="middle" font-size="13" fill="#fff">Ocean (salt water)</text></g></svg>`;
-// First-grade sight words (Dolch pre-primer, primer and first grade lists)
-const SIGHT=['the','and','was','said','you','they','have','come','here','there','what','when','where','could','would','from','went','look','play','give','going','know','live','many','once','open','over','put','some','stop','take','thank','them','then','think','walk','were','after','again','ask','any','by','every','fly','had','her','him','his','how','just','let','may','of','old','an','as','big','can','down','find','for','funny','help','jump','little','make','not','one','red','run','see','two','who','with','yes','saw','into','like','must','new','now','our','please','pretty','ran','ride','soon','that','this','too','under','want','well','white','will'];
-// Picture words for spelling (short-vowel CVC + simple blends)
-const PICS=[
-  ['cat','🐱'],['dog','🐶'],['sun','☀️'],['pig','🐷'],['bus','🚌'],['bed','🛏️'],['fox','🦊'],['bug','🐛'],
-  ['hen','🐔'],['box','📦'],['hat','🎩'],['map','🗺️'],['cup','🥤'],['web','🕸️'],['bat','🦇'],['egg','🥚'],
-  ['ant','🐜'],['net','🥅'],['pen','🖊️'],['van','🚐'],['fish','🐟'],['frog','🐸'],['duck','🦆'],['star','⭐'],
-  ['ship','🚢'],['moon','🌙'],['tree','🌳'],['ball','⚽'],['book','📖'],['cake','🎂'],['milk','🥛'],['crab','🦀'],
-  ['drum','🥁'],['nest','🪺'],['sock','🧦'],['king','🤴'],['ring','💍'],['bell','🔔'],['hand','✋'],['lamp','💡']
-];
-const ALPHA='abcdefghijklmnopqrstuvwxyz';
-let TOTAL=10;
-const RANKS=[[0,'Rookie Hero'],[30,'Sidekick'],[80,'Hero'],[150,'Super Hero'],[250,'Mega Hero'],[400,'Legend']];
+<!-- GROWN-UP GATE -->
+<div class="modal" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateQ">
+  <div class="panel" style="max-width:440px">
+    <h2>Grown-ups</h2>
+    <label class="field" id="gateQ" for="gateIn">Grown-ups only</label>
+    <input type="number" id="gateIn" inputmode="numeric">
+    <p class="note" id="gateMsg"></p>
+    <div class="btnrow"><button class="btn blue" id="gateGo">Continue</button><button class="btn ghost" data-close="gate">Cancel</button></div>
+  </div>
+</div>
 
-/* ================= STATE ================= */
-let hero=HEROES[0], world='math', mode=MODES.math[0];
-let qIndex=0, stars=0, firstTry=0, tries=0, current=null, villainHp=TOTAL, streak=0, bestStreak=0, superMode=false, xp=0, busy=false;
-let seenWords=[];
+<!-- GROWN-UP AREA -->
+<div class="modal" id="parent" role="dialog" aria-modal="true" aria-label="Grown-ups area">
+  <div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Grown-ups</h2><button class="btn ghost" data-close="parent">Done</button></div>
+    <div class="tabs" id="ptabs" style="margin-top:12px">
+      <button data-tab="list" class="on">Spelling list</button>
+      <button data-tab="report">Progress report</button>
+      <button data-tab="settings">Settings &amp; backup</button>
+    </div>
+    <div class="ptab" id="pt-list">
+      <label class="field" for="spellIn">This week's spelling words (one per line, up to 20)</label>
+      <textarea id="spellIn" placeholder="cat&#10;stop&#10;said"></textarea>
+      <p class="note">These show up in Word World → My Spelling List. Words the hero voice doesn't know are read with the device voice.</p>
+      <div class="btnrow"><button class="btn blue" id="saveList">Save words</button></div>
+      <p class="note" id="listMsg"></p>
+    </div>
+    <div class="ptab" id="pt-report" style="display:none"><div id="repBody"></div></div>
+    <div class="ptab" id="pt-settings" style="display:none">
+      <label class="field" for="setVoice">Voice</label>
+      <select class="inp" id="setVoice"><option value="hero">Hero voice (recorded, same on every device)</option><option value="device">Device voice (uses this device's voices)</option></select>
+      <div id="devVoiceRow"><label class="field" for="voicePick">Device voice</label><select class="inp" id="voicePick"></select></div>
+      <label class="field"><input type="checkbox" id="setMusic"> Theme music</label>
+      <div class="btnrow"><button class="btn" id="testSound2">Test sound</button></div>
+      <h3 style="margin:16px 0 4px">Saved progress</h3>
+      <p class="note" id="persistNote"></p>
+      <div class="btnrow"><button class="btn" id="backupBtn">Show backup code</button></div>
+      <code class="backup" id="backupOut"></code>
+      <label class="field" for="restoreIn">Restore from a backup code</label>
+      <textarea id="restoreIn" style="min-height:70px"></textarea>
+      <div class="btnrow"><button class="btn blue" id="restoreBtn">Restore</button><button class="btn red" id="resetBtn">Reset all progress</button></div>
+      <p class="note" id="restoreMsg"></p>
+      <h3 style="margin:16px 0 4px">Add to your home screen</h3>
+      <p class="note">iPhone or iPad: open the game in Safari, tap Share, then "Add to Home Screen." Android, Chrome, or Edge: use the "Install as an app" button on the start screen or the browser menu. After it has been opened once, the game works without internet.</p>
+    </div>
+  </div>
+</div>
 
-/* ================= ART ================= */
-function heroSVG(h,size=140){
-  const em = h.emblem==='bolt' ? '<path d="M72 92 62 108h8l-4 14 14-18h-8l4-12z" fill="#ffd23f" stroke="#14142b" stroke-width="2"/>'
-    : h.emblem==='plus' ? '<path d="M66 98h8v-8h6v8h8v6h-8v8h-6v-8h-8z" fill="#ffd23f" stroke="#14142b" stroke-width="2"/>'
-    : '<path d="M75 90l4 9 10 1-7 7 2 10-9-5-9 5 2-10-7-7 10-1z" fill="#ffd23f" stroke="#14142b" stroke-width="2"/>';
-  return `<svg viewBox="0 0 150 160" width="${size}" height="${size}" aria-hidden="true">
-  <path d="M45 80 20 150h110L105 80z" fill="${h.cape}" stroke="#14142b" stroke-width="4"/>
-  <rect x="50" y="78" width="50" height="58" rx="14" fill="${h.suit}" stroke="#14142b" stroke-width="4"/>
-  <circle cx="75" cy="104" r="16" fill="#fff" stroke="#14142b" stroke-width="3"/>${em}
-  <rect x="30" y="84" width="20" height="12" rx="6" fill="${h.suit}" stroke="#14142b" stroke-width="4" transform="rotate(-30 40 90)"/>
-  <rect x="100" y="84" width="20" height="12" rx="6" fill="${h.suit}" stroke="#14142b" stroke-width="4" transform="rotate(30 110 90)"/>
-  <rect x="56" y="132" width="14" height="20" rx="5" fill="#14142b"/><rect x="80" y="132" width="14" height="20" rx="5" fill="#14142b"/>
-  <circle cx="75" cy="50" r="30" fill="#f6c9a0" stroke="#14142b" stroke-width="4"/>
-  <path d="M45 46c8-26 52-26 60 0-10-8-50-8-60 0z" fill="#3b2314" stroke="#14142b" stroke-width="3"/>
-  <path d="M48 46h54v12c-10 4-17-2-27-2s-17 6-27 2z" fill="${h.mask}" stroke="#14142b" stroke-width="2"/>
-  <ellipse cx="63" cy="51" rx="6" ry="4" fill="#fff"/><ellipse cx="87" cy="51" rx="6" ry="4" fill="#fff"/>
-  <path d="M64 66q11 9 22 0" fill="none" stroke="#14142b" stroke-width="4" stroke-linecap="round"/></svg>`;
-}
-function villainSVG(v){
-  if(world==='water') return `<svg viewBox="0 0 150 160" width="140" height="150" aria-hidden="true">
-  <path d="M40 80 22 150h106L110 80z" fill="${v.cape}" stroke="#14142b" stroke-width="4"/>
-  <rect x="48" y="78" width="54" height="60" rx="12" fill="${v.suit}" stroke="#14142b" stroke-width="4"/>
-  <path d="M75 94c-8 10-10 14-10 18a10 10 0 0 0 20 0c0-4-2-8-10-18z" fill="#2a9df4" stroke="#14142b" stroke-width="2"/><path d="M62 96 88 122" stroke="#e63946" stroke-width="5" stroke-linecap="round"/>
-  <rect x="56" y="134" width="14" height="18" rx="5" fill="#14142b"/><rect x="80" y="134" width="14" height="18" rx="5" fill="#14142b"/>
-  <g stroke="#ff8c00" stroke-width="5" stroke-linecap="round"><path d="M75 4v12M45 14l7 9M105 14l-7 9M30 40h10M110 40h10"/></g>
-  <circle cx="75" cy="48" r="30" fill="${v.skin}" stroke="#14142b" stroke-width="4"/>
-  <path d="M52 40l16 6M98 40l-16 6" stroke="#14142b" stroke-width="5" stroke-linecap="round"/>
-  <circle cx="63" cy="52" r="5" fill="#e63946"/><circle cx="87" cy="52" r="5" fill="#e63946"/>
-  <path d="M62 68q13-8 26 0" fill="none" stroke="#14142b" stroke-width="4" stroke-linecap="round"/></svg>`;
-  const head = world==='word'
-    ? `<path d="M48 30l8-16 8 14 11-18 11 18 8-14 8 16" fill="#ffd23f" stroke="#14142b" stroke-width="3"/>`
-    : `<path d="M45 30q30-30 60 0" fill="none" stroke="#14142b" stroke-width="6"/>`;
-  const chest = world==='word'
-    ? `<text x="75" y="114" text-anchor="middle" font-family="Bangers" font-size="22" fill="#ffd23f" stroke="#14142b" stroke-width="1">?!</text>`
-    : `<rect x="60" y="100" width="30" height="8" rx="4" fill="#e63946" stroke="#14142b" stroke-width="2"/>`;
-  return `<svg viewBox="0 0 150 160" width="140" height="150" aria-hidden="true">
-  <path d="M40 80 22 150h106L110 80z" fill="${v.cape}" stroke="#14142b" stroke-width="4"/>
-  <rect x="48" y="78" width="54" height="60" rx="12" fill="${v.suit}" stroke="#14142b" stroke-width="4"/>${chest}
-  <rect x="56" y="134" width="14" height="18" rx="5" fill="#14142b"/><rect x="80" y="134" width="14" height="18" rx="5" fill="#14142b"/>
-  <circle cx="75" cy="48" r="30" fill="${v.skin}" stroke="#14142b" stroke-width="4"/>
-  <path d="M52 40l16 6M98 40l-16 6" stroke="#14142b" stroke-width="5" stroke-linecap="round"/>
-  <circle cx="63" cy="52" r="5" fill="#e63946"/><circle cx="87" cy="52" r="5" fill="#e63946"/>
-  <path d="M62 68q13-8 26 0" fill="none" stroke="#14142b" stroke-width="4" stroke-linecap="round"/>${head}</svg>`;
-}
-
-/* ================= BACKGROUND FX (canvas) ================= */
-const cv=document.getElementById('fx'),cx=cv.getContext('2d');let W,H,starsBg=[],parts=[];
-function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;starsBg=Array.from({length:Math.floor(W*H/9000)},()=>({x:Math.random()*W,y:Math.random()*H,z:Math.random()*2+.4}));}
-addEventListener('resize',resize);resize();
-function burst(x,y,color,n=30){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=Math.random()*7+2;parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,c:Math.random()<.5?color:'#ffd23f',r:Math.random()*5+3});}}
-function loop(){
-  cx.clearRect(0,0,W,H);
-  const speed=superMode?6:.4;
-  for(const s of starsBg){s.x-=s.z*speed;if(s.x<0){s.x=W;s.y=Math.random()*H;}
-    cx.fillStyle=`rgba(255,255,255,${.25+s.z*.25})`;
-    if(superMode){cx.fillRect(s.x,s.y,s.z*10,1.5)}else{cx.fillRect(s.x,s.y,s.z,s.z)}}
-  for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.x+=p.vx;p.y+=p.vy;p.vy+=.18;p.life-=.022;
-    if(p.life<=0){parts.splice(i,1);continue}
-    cx.globalAlpha=p.life;cx.fillStyle=p.c;cx.beginPath();cx.arc(p.x,p.y,p.r*p.life,0,7);cx.fill();cx.globalAlpha=1;}
-  requestAnimationFrame(loop);
-}
-loop();
-
-/* ================= SETUP ================= */
-const $=id=>document.getElementById(id);
-const heroPicks=$('heroPicks'), modePicks=$('modePicks');
-HEROES.forEach((h,i)=>{
-  const b=document.createElement('button');b.className='pick'+(i===0?' sel':'');
-  b.innerHTML=heroSVG(h,80)+h.name+'<small>'+h.power+'</small>';
-  b.onclick=()=>{hero=h;[...heroPicks.children].forEach(c=>c.classList.remove('sel'));b.classList.add('sel');sfx('click');};
-  heroPicks.appendChild(b);
-});
-function renderModes(){
-  modePicks.innerHTML='';
-  MODES[world].forEach((m,i)=>{
-    const b=document.createElement('button');b.className='pick'+(m===mode?' sel':'');
-    b.innerHTML=`<span style="font-size:22px">${m.name}</span><small>${m.desc}</small>`;
-    b.onclick=()=>{mode=m;[...modePicks.children].forEach(c=>c.classList.remove('sel'));b.classList.add('sel');sfx('click');};
-    modePicks.appendChild(b);
-  });
-}
-document.querySelectorAll('.world').forEach(b=>b.onclick=()=>{
-  world=b.dataset.world;mode=MODES[world][0];
-  document.querySelectorAll('.world').forEach(w=>w.classList.toggle('sel',w===b));
-  document.body.classList.toggle('word-world',world==='word');document.body.classList.toggle('water-world',world==='water');
-  renderModes();sfx('click');
-});
-renderModes();
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo(0,0)}
-function rankName(){let r=RANKS[0][1];for(const [n,t] of RANKS)if(xp>=n)r=t;return r}
-function updateRank(){$('rankTag').textContent=`Rank: ${rankName()} · ${xp} XP`}
-
-/* ================= HELPERS ================= */
-const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
-const pick=a=>a[rnd(0,a.length-1)];
-const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
-function fresh(list,key=x=>x){ // avoid repeats within a mission
-  const pool=list.filter(x=>!seenWords.includes(key(x)));const it=pick(pool.length?pool:list);seenWords.push(key(it));return it;
-}
-
-/* ================= PROBLEM GENERATORS ================= */
-function mathProblem(){
-  let t=mode.id;
-  if(t==='mix') t=pick(['add10','add20','sub10','sub20','missing']);
-  if(qIndex===TOTAL-1 && mode.id!=='add10' && mode.id!=='sub10') t = mode.id==='add20'?'add20':pick(['add20','sub20']); // boss: harder
-  let a,b,ans,kind;
-  if(t==='add10'){a=rnd(0,9);b=rnd(1,10-a);ans=a+b;kind='+';}
-  else if(t==='add20'){a=rnd(3,10);b=rnd(2,10);if(a+b>20)b=20-a;ans=a+b;kind='+';}
-  else if(t==='sub10'){a=rnd(2,10);b=rnd(1,a);ans=a-b;kind='-';}
-  else if(t==='sub20'){a=rnd(11,18);b=rnd(2,9);ans=a-b;kind='-';}
-  else {a=rnd(1,8);ans=rnd(1,10-a);b=a+ans;kind='missing';}
-  const text = kind==='+'?`${a} + ${b} = <span class="q">?</span>`: kind==='-'?`${a} − ${b} = <span class="q">?</span>`:`${a} + <span class="q">?</span> = ${b}`;
-  const speak = kind==='+'?`What is ${a} plus ${b}?`: kind==='-'?`What is ${a} take away ${b}?`:`${a} plus what makes ${b}?`;
-  const set=new Set([ans]);const near=[ans+1,ans-1,ans+2,ans-2,ans+3,ans-3].filter(n=>n>=0&&n<=20);
-  while(set.size<4){set.add(near.length?near.splice(rnd(0,near.length-1),1)[0]:rnd(0,20));}
-  return {type:'choice',a,b,ans,kind,speak,html:`<div class="problem">${text}</div><div class="visual" id="visual"></div>`,choices:shuffle([...set]),label:String(ans)};
-}
-function sightProblem(){
-  const w=fresh(SIGHT);
-  // distractors: similar first letter or length
-  let pool=SIGHT.filter(x=>x!==w&&(x[0]===w[0]||Math.abs(x.length-w.length)<=1));
-  pool=shuffle(pool).slice(0,3);while(pool.length<3){const x=pick(SIGHT);if(x!==w&&!pool.includes(x))pool.push(x)}
-  return {type:'choice',word:true,ans:w,choices:shuffle([w,...pool]),speak:`Find the word: ${w}. ${w}.`,learn:w,
-    html:`<div class="prompt">Listen, then tap the word you hear</div>
-      <button class="listen" onclick="say(current.speak)">HEAR IT</button>
-      <button class="listen peek" id="peekBtn" onclick="peek()">Peek</button>
-      <div class="problem word" id="peekWord" style="min-height:1.1em"></div>`};
-}
-function spellProblem(){
-  let list=PICS; if(qIndex<4) list=PICS.filter(p=>p[0].length===3); else if(qIndex===TOTAL-1) list=PICS.filter(p=>p[0].length===4);
-  const [w,e]=fresh(list,p=>p[0]);
-  const extras=[];while(extras.length<2){const l=pick(ALPHA);if(!w.includes(l)&&!extras.includes(l))extras.push(l)}
-  return {type:'spell',ans:w,pic:e,tiles:shuffle([...w,...extras]),speak:`Spell ${w}. ${w.split('').join(', ')}.`,learn:w,
-    html:`<div class="prompt">Spell the word</div><div class="pic">${e}</div>
-      <button class="listen" onclick="say('Spell '+current.ans)">HEAR IT</button>`};
-}
-function missingProblem(){
-  const [w,e]=fresh(PICS,p=>p[0]);
-  const vowels='aeiou';
-  // prefer blanking the vowel in short words (key 1st-grade skill); otherwise first letter
-  let pos=[...w].findIndex(c=>vowels.includes(c)); if(pos<0||Math.random()<.35) pos=0;
-  const letter=w[pos];
-  const src=vowels.includes(letter)?vowels:'bcdfghjklmnprstvw';
-  const opts=new Set([letter]);while(opts.size<4)opts.add(pick(src));
-  const shown=[...w].map((c,i)=>i===pos?'<span class="blank"></span>':c).join('');
-  return {type:'choice',word:true,ans:letter,choices:shuffle([...opts]),speak:`Which letter is missing in ${w}?`,learn:w,full:w,
-    html:`<div class="prompt">Which letter is missing?</div><div class="pic">${e}</div><div class="problem word" id="mword">${shown}</div>
-      <button class="listen" onclick="say(current.full)">HEAR IT</button>`};
-}
-function waterProblem(){
-  if(mode.id==='wstory') return storyProblem();
-  const it=fresh(WATER[mode.id],x=>x.q);
-  const choices=shuffle([it.a,...it.o]);
-  return {type:'choice',long:true,ans:it.a,choices,speak:it.q.replace('…',' blank.'),hint:it.h,
-    html:`<div class="qbox"><div class="pic">${it.pic}</div><div class="qtext">${it.q}</div></div>
-      <button class="listen" onclick="say(current.speak)">HEAR IT</button><div class="visual" id="visual"></div>`};
-}
-function storyProblem(){
-  const step=qIndex, ans=STORY[step];
-  const others=STORY.filter((x,i)=>i>step); // later steps are tempting wrong answers
-  const opts=new Set([ans]);
-  if(others.length) opts.add(pick(others));
-  while(opts.size<3) opts.add(pick(STORY_WRONG));
-  const done=STORY.slice(0,step).map(x=>`<li>${x}</li>`).join('');
-  return {type:'choice',long:true,ans,choices:shuffle([...opts]),
-    speak:step===0?'How does the water cycle start? Pick the first part of the story.':'What happens next in the water cycle?',
-    hint:['Hint: The sun powers the water cycle.','Hint: Evaporation comes after the sun heats the water.','Hint: Condensation makes clouds.','Hint: Precipitation is rain, snow, sleet, or hail.','Hint: The water cycle never ends.'][step],
-    html:`<div class="prompt">${step===0?'How does the water cycle start?':'What happens next?'}</div>
-      ${step?`<ol class="story">${done}</ol>`:''}
-      <button class="listen" onclick="say(current.speak)">HEAR IT</button><div class="visual" id="visual"></div>`};
-}
-function makeProblem(){
-  if(world==='math') return mathProblem();
-  if(world==='water') return waterProblem();
-  let t=mode.id; if(t==='wordmix') t=pick(['sight','spell','missing']);
-  return t==='sight'?sightProblem():t==='spell'?spellProblem():missingProblem();
-}
-
-/* ================= GAME LOOP ================= */
-function startGame(){
-  document.querySelectorAll('.confetti').forEach(c=>c.remove());parts.length=0;
-  TOTAL=mode.id==='wstory'?5:10;
-  qIndex=0;stars=0;firstTry=0;villainHp=TOTAL;streak=0;bestStreak=0;seenWords=[];setSuper(false);busy=false;
-  const v=VILLAINS[world];
-  document.documentElement.style.setProperty('--hero',hero.blast);
-  $('heroSvg').innerHTML=heroSVG(hero);$('villainSvg').innerHTML=villainSVG(v);
-  $('heroName').textContent=hero.name;$('villainName').textContent=v.name;
-  $('villainHp').style.width='100%';updateCombo();
-  show('battle');nextQ();
-  setTimeout(()=>taunt(v.taunts[0]),500);
-}
-function nextQ(){
-  if(qIndex>=TOTAL) return winGame();
-  current=makeProblem();tries=0;busy=false;
-  const boss=qIndex===TOTAL-1;
-  $('qpanel').classList.toggle('boss',boss);
-  if(boss){showBanner('BOSS ROUND!');sfx('boss');}
-  $('progress').textContent=`Round ${qIndex+1} of ${TOTAL}`;
-  $('starCount').textContent='★ '+stars;
-  $('qbody').innerHTML=current.html;
-  $('feedback').textContent='';$('feedback').className='feedback';
-  if(current.type==='choice'){
-    const box=document.createElement('div');box.className='answers'+(current.long?' long':'');
-    current.choices.forEach(n=>{const b=document.createElement('button');b.className='ans'+(current.long?' long':current.word?' txt':'');b.textContent=n;b.onclick=()=>answer(n,b);box.appendChild(b);});
-    $('qbody').appendChild(box);
-  } else buildSpell();
-  if(world!=='math') setTimeout(()=>say(current.speak),boss?900:250);
-  else if(autoRead) say(current.speak);
-}
-function peek(){$('peekWord').textContent=current.ans;$('peekBtn').disabled=true;}
-/* spelling */
-let spelled=[],locked=0;
-function buildSpell(){
-  spelled=[];locked=0;
-  const q=$('qbody');
-  const slots=document.createElement('div');slots.className='slots';slots.id='slots';
-  for(let i=0;i<current.ans.length;i++){const s=document.createElement('div');s.className='slot';slots.appendChild(s)}
-  const tiles=document.createElement('div');tiles.className='tiles';tiles.id='tiles';
-  current.tiles.forEach((l,i)=>{const t=document.createElement('button');t.className='tile';t.textContent=l;t.dataset.i=i;t.onclick=()=>tapTile(t);tiles.appendChild(t)});
-  const undo=document.createElement('button');undo.className='icon-btn undo';undo.textContent='Undo';undo.onclick=undoTile;
-  q.append(slots,tiles,undo);
-}
-function drawSlots(){[...$('slots').children].forEach((s,i)=>{s.textContent=spelled[i]?spelled[i].l:'';s.className='slot'+(spelled[i]?' f':'')+(i<locked?' lock':'')})}
-function tapTile(t){
-  if(busy)return;spelled.push({l:t.textContent,el:t});t.disabled=true;sfx('click');say(t.textContent);drawSlots();
-  if(spelled.length===current.ans.length){
-    const word=spelled.map(s=>s.l).join('');
-    if(word===current.ans) correct(null);
-    else{
-      tries++;streakBreak();$('slots').classList.add('bad');sfx('wrong');
-      $('feedback').textContent=tries===1?'Almost! Listen to the sounds.':'Keep going! I gave you a letter.';$('feedback').className='feedback try';
-      taunt(pick(VILLAINS[world].taunts));
-      setTimeout(()=>{ $('slots').classList.remove('bad');
-        locked=Math.min(tries,current.ans.length-1);
-        spelled.forEach(s=>s.el.disabled=false);spelled=[];
-        // lock correct leading letters as a hint
-        const tiles=[...$('tiles').children];
-        for(let i=0;i<locked;i++){const t=tiles.find(x=>!x.disabled&&x.textContent===current.ans[i]);t.disabled=true;spelled.push({l:t.textContent,el:t,lock:true})}
-        drawSlots();say(current.ans.split('').join(', '));
-      },700);
-    }
-  }
-}
-function undoTile(){if(busy||spelled.length<=locked)return;const s=spelled.pop();s.el.disabled=false;drawSlots();}
-
-const PRAISE=['Super job!','Power up!','Heroic!','You got it!','Amazing!','Way to go, hero!','Boom! Correct!'];
-const TRYMSG=['Almost! Try again.','Not quite. You can do it!','Keep going, hero!'];
-function answer(n,btn){
-  if(busy)return;
-  if(n===current.ans){
-    [...document.querySelectorAll('.ans')].forEach(b=>b.disabled=true);btn.classList.add('right');
-    if(current.full) $('mword').textContent=current.full;
-    correct(btn);
-  } else {
-    tries++;btn.disabled=true;streakBreak();
-    $('feedback').textContent=TRYMSG[Math.min(tries-1,2)];$('feedback').className='feedback try';
-    sfx('wrong');taunt(pick(VILLAINS[world].taunts));
-    if(world==='math') mathHint(current);
-    else if(current.hint){$('visual').innerHTML=`<div class="hintbox">${current.hint}</div>`;say(current.hint);}
-    else if(current.full) say(current.full);
-    else say(current.ans);
-    const vb=$('villainBox');vb.classList.remove('bounce');void vb.offsetWidth;vb.classList.add('bounce');
-  }
-}
-function correct(){
-  busy=true;
-  if(tries===0){streak++;bestStreak=Math.max(bestStreak,streak);firstTry++;stars+=superMode?2:1;xp+=superMode?10:5;}
-  else xp+=2;
-  if(current.learn && !learnedList.includes(current.learn)) learnedList.push(current.learn);
-  const wasSuper=superMode;
-  if(streak>=3 && !superMode){setSuper(true);setTimeout(()=>showBanner('SUPER MODE!'),300);sfx('super');}
-  updateCombo();
-  const msg=pick(PRAISE)+(tries===0?(wasSuper?' +2 ★':' +1 ★'):'');
-  $('feedback').textContent=msg;$('feedback').className='feedback good';
-  say(world!=='math'?`${pick(['Yes!','Great!','Super!'])} ${current.full||current.ans}`:msg.replace(/\+\d ★/,''));
-  attack(qIndex===TOTAL-1||superMode);
-  qIndex++;villainHp--;
-  setTimeout(nextQ,1700);
-}
-function streakBreak(){if(tries===1){streak=0;if(superMode){setSuper(false);}updateCombo();}}
-function setSuper(on){superMode=on;$('battle').classList.toggle('super-on',on);$('combo').classList.toggle('super',on)}
-function updateCombo(){
-  $('comboBar').style.width=(superMode?100:Math.min(streak,3)/3*100)+'%';
-  $('comboLbl').textContent=superMode?'SUPER MODE! 2x ★':streak?`${streak} in a row!`:'Get 3 in a row';
-}
-function mathHint(p){
-  const v=$('visual');const dots=(n,c='')=>'<div class="dots">'+Array.from({length:n},()=>`<span class="dot ${c}"></span>`).join('')+'</div>';
-  if(p.kind==='+') v.innerHTML=dots(p.a)+'<span class="op">+</span>'+dots(p.b,'b');
-  else if(p.kind==='-') v.innerHTML='<div class="dots">'+Array.from({length:p.a},(_,i)=>`<span class="dot ${i>=p.a-p.b?'x':''}"></span>`).join('')+'</div>';
-  else v.innerHTML=dots(p.a)+'<span class="op">+ ? =</span>'+dots(p.b,'b');
-}
-function taunt(t){const b=$('bubble');b.textContent=t;b.classList.add('show');clearTimeout(taunt.t);taunt.t=setTimeout(()=>b.classList.remove('show'),1800)}
-function showBanner(t){const b=$('banner');b.textContent=t;b.classList.remove('show');void b.offsetWidth;b.classList.add('show')}
-function attack(mega){
-  const blast=$('blast'),arena=$('arena'),vb=$('villainBox'),hb=$('heroBox');
-  blast.classList.toggle('mega',!!mega);
-  blast.style.setProperty('--dist',arena.clientWidth-(mega?320:300));
-  blast.classList.remove('go');void blast.offsetWidth;blast.classList.add('go');
-  hb.classList.remove('bounce');void hb.offsetWidth;hb.classList.add('bounce');
-  sfx('zap');
-  setTimeout(()=>{
-    vb.classList.remove('shake');void vb.offsetWidth;vb.classList.add('shake');
-    const boom=$('boom');boom.textContent=mega?pick(['KA-BOOM!','MEGA POW!','SUPER ZAP!']):pick(['POW!','ZAP!','BAM!','KAPOW!','WHAM!']);
-    boom.classList.remove('show');void boom.offsetWidth;boom.classList.add('show');
-    $('villainHp').style.width=(Math.max(0,villainHp)/TOTAL*100)+'%';
-    const r=vb.getBoundingClientRect();burst(r.left+r.width/2,r.top+70,hero.blast,mega?70:30);
-    if(mega){const f=$('flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');
-      const m=$('main');m.classList.remove('shakeall');void m.offsetWidth;m.classList.add('shakeall');}
-    sfx('boom');
-    if(villainHp>0 && Math.random()<.5) taunt(pick(VILLAINS[world].hurt));
-  },480);
-}
-let learnedList=[];
-function winGame(){
-  show('win');sfx('win');setSuper(false);
-  const v=VILLAINS[world];
-  $('winTitle').textContent=v.win;
-  $('winHero').innerHTML=heroSVG(hero,160);
-  const s=firstTry>=TOTAL*.9?3:firstTry>=TOTAL*.6?2:1;
-  $('winStars').innerHTML='★'.repeat(s)+'<span class="off">'+'★'.repeat(3-s)+'</span>';
-  xp+=20;updateRank();
-  $('winText').textContent=`${hero.name} defeated ${v.name}! You got ${firstTry} of ${TOTAL} on the first try and earned ${stars} stars.`;
-  const badges=[];
-  if(firstTry===TOTAL)badges.push('Perfect Hero');
-  if(bestStreak>=3)badges.push('Super Mode Unlocked');
-  if(bestStreak>=5)badges.push(bestStreak+' in a row');
-  badges.push(mode.name+' Champion');badges.push('Rank: '+rankName());
-  $('badges').innerHTML=badges.map(b=>`<span class="badge">${b}</span>`).join('');
-  const thisRound=seenWords.length&&world==='word'?seenWords:[];
-  $('learned').innerHTML=thisRound.length?'Words you practiced: '+[...new Set(thisRound)].map(w=>`<b>${w}</b>`).join(''):'';
-  $('explain').innerHTML = world==='water' ? `<div class="explain"><h3>Explain the water cycle</h3>${CYCLE_SVG}<ol class="story">${STORY.map(x=>`<li>${x}</li>`).join('')}</ol>
-    <button class="icon-btn" onclick="say(STORY.join(' '))">Read it to me</button>
-    <p class="tip">Practice: say the water cycle out loud in your own words, then try writing it down.</p></div>` : '';
-  say(`You saved the day! You got ${firstTry} out of ${TOTAL} on the first try!`);
-  confetti();
-}
-function confetti(){
-  const colors=['#ffd23f','#e63946','#2a9df4','#2ec27e','#7b2cbf'];
-  for(let i=0;i<90;i++){const c=document.createElement('div');c.className='confetti';
-    c.style.left=Math.random()*100+'vw';c.style.background=colors[i%5];c.style.animationDuration=(2+Math.random()*2)+'s';
-    c.style.animationDelay=Math.random()*.6+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),5000);}
-  for(let i=0;i<4;i++)setTimeout(()=>burst(rnd(100,W-100),rnd(100,H/2),pick(colors),50),i*350);
-}
-
-/* ================= SPEECH + SOUND ================= */
-let autoRead=false;
-/* Sound: unlock audio on the first tap (required by iPhone/iPad and Chrome), pick an English voice,
-   and work around browsers that drop speech right after cancel(). */
-let soundOn=true, unlocked=false, voice=null, lastUtter=null, actx;
-const synth=('speechSynthesis' in window)?window.speechSynthesis:null;
-// Heroic male voices, best first (Edge/Windows natural voices, Chrome, Apple)
-const MALE=[/Andrew/i,/Guy/i,/Christopher/i,/Brian/i,/Davis/i,/Eric/i,/Roger/i,/Steffan/i,/Ryan/i,/Thomas/i,
-  /Google UK English Male/i,/Daniel/i,/Aaron/i,/Arthur/i,/Evan/i,/Nathan/i,/\bTom\b/i,/Rishi/i,/Alex\b/i,/David/i,/Mark/i,/Fred/i,/Ralph/i,/\bmale\b/i];
-const isMale=v=>MALE.some(r=>r.test(v.name))&&!/female/i.test(v.name);
-let voiceList=[], userPicked=false;
-function maleRank(v){const i=MALE.findIndex(r=>r.test(v.name));return i<0?99:i}
-function pickVoice(){if(!synth)return;const vs=synth.getVoices().filter(v=>/^en/i.test(v.lang));if(!vs.length)return;
-  const males=vs.filter(isMale).sort((a,b)=>maleRank(a)-maleRank(b)||(/en[-_]US/i.test(b.lang)-/en[-_]US/i.test(a.lang)));
-  voiceList=[...males,...vs.filter(v=>!isMale(v))];
-  if(!userPicked) voice=voiceList[0];
-  fillVoicePicker();}
-function fillVoicePicker(){const sel=document.getElementById('voicePick');if(!sel)return;
-  sel.innerHTML=voiceList.map((v,i)=>`<option value="${i}" ${v===voice?'selected':''}>${isMale(v)?'Hero: ':''}${v.name.replace(/Microsoft |Online \(Natural\)| - English \(.*\)/g,'').trim()} (${v.lang})</option>`).join('');}
-if(synth){pickVoice();synth.onvoiceschanged=pickVoice;setTimeout(pickVoice,500);setTimeout(pickVoice,1500);}
-function getCtx(){try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state!=='running')actx.resume();}catch(e){}return actx}
-function unlockAudio(){
-  const c=getCtx();
-  try{const b=c.createBuffer(1,1,22050),src=c.createBufferSource();src.buffer=b;src.connect(c.destination);src.start(0);}catch(e){}
-  if(!unlocked&&synth){unlocked=true;try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;synth.speak(u);}catch(e){}}
-}
-['pointerdown','touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,unlockAudio,{capture:true,passive:true}));
-function speakNow(t){
-  const u=new SpeechSynthesisUtterance(t);u.lang=voice?voice.lang:'en-US';if(voice)u.voice=voice;
-  // deep, strong hero delivery; a lighter voice gets pitched down further
-  const male=voice&&isMale(voice);u.rate=male?.9:.88;u.pitch=male?.8:.55;u.volume=1;
-  lastUtter=u; // keep a reference so Chrome does not drop it
-  synth.speak(u);
-}
-function say(t){
-  if(!soundOn||!synth||!t)return;
-  try{
-    if(synth.paused)synth.resume();
-    if(synth.speaking||synth.pending){synth.cancel();setTimeout(()=>speakNow(t),80);}
-    else speakNow(t);
-  }catch(e){}
-}
-function soundCheck(){
-  unlockAudio();soundOn=true;updateSoundBtn();
-  [523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,.18,'square',.09),i*120));
-  const msg=$('soundMsg');
-  if(!synth){msg.textContent='Beeps work, but this browser cannot read out loud. Try Chrome, Edge, or Safari.';return;}
-  say('Never fear, hero! I am here to help you save the day. Can you hear me?');
-  setTimeout(()=>{ if(synth&&!synth.getVoices().length) msg.textContent='If you hear beeps but no voice, this device may not have a reading voice installed. Try Chrome, Edge, or Safari.';
-    else msg.textContent='You should hear 3 beeps and a voice. No sound? Turn the volume up. On iPhone or iPad, turn off Silent mode.'; },700);
-}
-function updateSoundBtn(){const b=$('soundBtn');if(b)b.textContent=soundOn?'Sound: On':'Sound: Off';}
-function tone(f,d,type='square',v=.08,slide){
-  if(!soundOn)return;try{getCtx();const o=actx.createOscillator(),g=actx.createGain();
-  o.type=type;o.frequency.value=f;if(slide)o.frequency.exponentialRampToValueAtTime(slide,actx.currentTime+d);
-  g.gain.setValueAtTime(v,actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+d);
-  o.connect(g).connect(actx.destination);o.start();o.stop(actx.currentTime+d);}catch(e){}
-}
-function sfx(k){
-  if(k==='click')tone(660,.08);
-  if(k==='zap')tone(1200,.4,'sawtooth',.06,200);
-  if(k==='boom')tone(120,.35,'triangle',.2,40);
-  if(k==='wrong')tone(220,.25,'sine',.1,160);
-  if(k==='super')[392,523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>tone(f,.15,'square',.06),i*70));
-  if(k==='boss')[196,185,175].forEach((f,i)=>setTimeout(()=>tone(f,.3,'sawtooth',.07),i*250));
-  if(k==='win')[523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,.25,'square',.07),i*150));
-}
-
-$('goBtn').onclick=()=>{unlockAudio();sfx('click');startGame();};
-$('againBtn').onclick=startGame;
-$('homeBtn').onclick=()=>{updateRank();show('start')};
-$('quitBtn').onclick=()=>{synth&&synth.cancel();show('start')};
-$('soundCheckBtn').onclick=soundCheck;
-$('voicePick').onchange=e=>{voice=voiceList[+e.target.value];userPicked=true;unlockAudio();say('Never fear, hero! Let\'s save the day!');};
-$('soundBtn').onclick=()=>{soundOn=!soundOn;if(!soundOn&&synth)synth.cancel();updateSoundBtn();if(soundOn)say(current?current.speak:'Sound on');};
-$('speakBtn').onclick=()=>{autoRead=true;say(current.speak);};
-</script>
+<script src="js/clips.js"></script>
+<script src="js/data.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/store.js"></script>
+<script src="js/art.js"></script>
+<script src="js/problems.js"></script>
+<script src="js/game.js"></script>
 </body>
 </html>
