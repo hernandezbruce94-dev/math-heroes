@@ -13,7 +13,9 @@
 <meta name="apple-mobile-web-app-title" content="Math Heroes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'">
 <link rel="stylesheet" href="css/styles.css">
+<script>window.__API_BASE__='__PORT_8000__';</script>
 </head>
 <body class="math-world">
 <canvas id="fx"></canvas>
@@ -29,7 +31,7 @@
   <!-- START -->
   <section id="start" class="screen active">
     <div class="topbar">
-      <div class="rank"><span id="rankTag">Rookie Hero · 0 XP</span> <span id="starTag">★ 0</span></div>
+      <div class="rank"><button class="sm-btn on" id="playerChip">Who's playing?</button> <span id="rankTag">Rookie Hero · 0 XP</span> <span id="starTag">★ 0</span></div>
       <div class="btnrow" style="margin:0">
         <button class="sm-btn" id="soundCheckBtn">Test sound</button>
         <button class="sm-btn on" id="musicBtn">Music: On</button>
@@ -39,6 +41,9 @@
     <div class="title">MATH HEROES!</div>
     <p class="subtitle" id="welcome">Villains are attacking. Use your brain power to save the day.</p>
     <p class="parent" id="soundMsg">Tap "Test sound" to make sure you can hear the hero voice.</p>
+
+    <div class="panel dailybox" id="dailyBox"></div>
+    <div class="panel petbox" id="petBox"></div>
 
     <div class="panel">
       <h2>1. Pick your hero</h2>
@@ -52,10 +57,11 @@
         <button class="pick world word" data-world="word">Word World<small>Reading &amp; spelling</small></button>
         <button class="pick world water" data-world="water">Water World<small>The water cycle</small></button>
       </div>
-      <h2 style="font-size:26px">3. Pick your mission <span class="voicechip" id="lvlTag" style="color:var(--green)"></span></h2>
+      <h2 style="font-size:26px">3. Pick your mission <span class="voicechip" id="lvlTag" style="color:var(--green)"></span> <button class="sm-btn" id="storyBtn" style="font-size:13px;padding:4px 10px">Watch story</button></h2>
       <div class="grid modes" id="modePicks"></div>
     </div>
 
+    <div style="text-align:center;margin-bottom:14px"><button class="sm-btn" id="tpBtn">2 Players</button></div>
     <button class="big-btn" id="goBtn">LET'S GO!</button>
     <div style="text-align:center;margin-top:14px"><button class="btn install" id="installBtn">Install as an app</button></div>
     <p class="parent">Get 3 right in a row for SUPER MODE. Earn stars to unlock hero gear and the Mega Boss.</p>
@@ -75,7 +81,7 @@
     </div>
     <div class="combo" id="combo"><span>Power</span><div class="bar"><div id="comboBar"></div></div><span class="lbl" id="comboLbl">Get 3 in a row</span></div>
     <div class="arena" id="arena">
-      <div class="fighter hero" id="heroBox"><div class="body" id="heroSvg"></div><div class="name" id="heroName">Hero</div><div class="hp"><div id="heroHp" style="width:100%"></div></div></div>
+      <div class="fighter hero" id="heroBox"><div class="petslot" id="petSlot"></div><div class="body" id="heroSvg"></div><div class="name" id="heroName">Hero</div><div class="hp"><div id="heroHp" style="width:100%"></div></div></div>
       <div class="blast" id="blast"></div>
       <div class="boom" id="boom">POW!</div>
       <div class="fighter villain" id="villainBox"><div class="bubble" id="bubble">Ha!</div><div class="body" id="villainSvg"></div><div class="name" id="villainName">Dr. Minus</div><div class="hp"><div id="villainHp" style="width:100%"></div></div></div>
@@ -103,6 +109,18 @@
         <button class="big-btn" id="againBtn">PLAY AGAIN</button>
         <button class="big-btn alt" id="homeBtn">NEW MISSION</button>
       </div>
+    </div>
+  </section>
+
+  <!-- BREAK -->
+  <section id="breakScr" class="screen">
+    <div class="panel win">
+      <div class="medal">POWER BREAK!</div>
+      <p style="font-size:22px;font-weight:900">Heroes need to recharge too.</p>
+      <div class="brkclock" id="brkClock">3:00</div>
+      <div class="brktip" id="brkTip"></div>
+      <div class="row"><button class="big-btn" id="brkDone" disabled>BACK TO THE MISSION</button></div>
+      <p class="note" style="margin-top:12px"><button class="btn ghost" id="brkSkip">Grown-up: skip the break</button></p>
     </div>
   </section>
 
@@ -134,6 +152,48 @@
   </section>
 </main>
 
+<!-- STORY SCENE -->
+<div class="modal" id="sceneModal" role="dialog" aria-modal="true" aria-labelledby="scTitle">
+  <div class="panel scene" id="scPanel">
+    <div class="sc-title" id="scTitle">Chapter 1</div>
+    <div class="sc-art" id="scArt"></div>
+    <div class="sc-cap"><b id="scWho">Narrator</b><p id="scText"></p></div>
+    <div class="btnrow" style="justify-content:space-between"><button class="btn ghost" id="scSkip">Skip</button><button class="btn" id="scNext">Next</button></div>
+  </div>
+</div>
+<!-- PET -->
+<div class="modal" id="petModal" role="dialog" aria-modal="true" aria-label="Choose a sidekick">
+  <div class="panel" style="max-width:620px">
+    <h2>Choose your sidekick</h2>
+    <div class="grid petgrid" id="petPicks"></div>
+    <label class="field" for="petName">Name your sidekick</label>
+    <input type="text" id="petName" maxlength="14" placeholder="Sparky" autocomplete="off">
+    <div class="btnrow"><button class="btn" id="petSave">This one!</button><button class="btn ghost" data-close="petModal">Not now</button></div>
+  </div>
+</div>
+<!-- PROFILES -->
+<div class="modal" id="profModal" role="dialog" aria-modal="true" aria-label="Who is playing">
+  <div class="panel" style="max-width:640px">
+    <h2>Who's playing?</h2>
+    <div class="grid heroes" id="profList"></div>
+    <div id="profNewRow" style="display:none"><label class="field" for="profNew">New player's name</label>
+      <div class="btnrow" style="margin-top:0"><input type="text" id="profNew" maxlength="16" style="max-width:260px" autocomplete="off"><button class="btn blue" id="profCreate">Add</button></div></div>
+    <div class="btnrow"><button class="btn ghost" data-close="profModal">Close</button></div>
+  </div>
+</div>
+<!-- TWO PLAYERS -->
+<div class="modal" id="tpModal" role="dialog" aria-modal="true" aria-label="Two players">
+  <div class="panel" style="max-width:480px">
+    <h2>2 Players</h2>
+    <p class="note">Take turns on the same device. Each player gets every other question.</p>
+    <label class="field" for="tpName1">Player 1</label><input type="text" id="tpName1" maxlength="12" autocomplete="off">
+    <label class="field" for="tpName2">Player 2</label><input type="text" id="tpName2" maxlength="12" autocomplete="off">
+    <label class="field"><input type="checkbox" id="tpHard"> Player 2 gets harder questions (for a big kid or a grown-up)</label>
+    <p class="note">Stars from 2-player games count for Player 1's saved progress.</p>
+    <div class="btnrow"><button class="btn blue" id="tpOn">Play 2 players</button><button class="btn ghost" id="tpOff">Back to 1 player</button></div>
+  </div>
+</div>
+
 <!-- GROWN-UP GATE -->
 <div class="modal" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateQ">
   <div class="panel" style="max-width:440px">
@@ -148,10 +208,11 @@
 <!-- GROWN-UP AREA -->
 <div class="modal" id="parent" role="dialog" aria-modal="true" aria-label="Grown-ups area">
   <div class="panel">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Grown-ups</h2><button class="btn ghost" data-close="parent">Done</button></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 style="margin:0">Grown-ups <small class="note" id="pWho"></small></h2><button class="btn ghost" data-close="parent">Done</button></div>
     <div class="tabs" id="ptabs" style="margin-top:12px">
       <button data-tab="list" class="on">Spelling list</button>
       <button data-tab="report">Progress report</button>
+      <button data-tab="players">Players</button>
       <button data-tab="settings">Settings &amp; backup</button>
     </div>
     <div class="ptab" id="pt-list">
@@ -162,11 +223,17 @@
       <p class="note" id="listMsg"></p>
     </div>
     <div class="ptab" id="pt-report" style="display:none"><div id="repBody"></div></div>
+    <div class="ptab" id="pt-players" style="display:none"><p class="note">Each player has their own hero, stars, levels, spelling list, sidekick, and report. Switch players with the button at the top of the start screen.</p><div id="plBody"></div></div>
     <div class="ptab" id="pt-settings" style="display:none">
       <label class="field" for="setVoice">Voice</label>
       <select class="inp" id="setVoice"><option value="hero">Hero voice (recorded, same on every device)</option><option value="device">Device voice (uses this device's voices)</option></select>
       <div id="devVoiceRow"><label class="field" for="voicePick">Device voice</label><select class="inp" id="voicePick"></select></div>
       <label class="field"><input type="checkbox" id="setMusic"> Theme music</label>
+      <label class="field" for="setBreak">Break reminder</label>
+      <select class="inp" id="setBreak"><option value="0">Off</option><option value="15">After 15 minutes of play</option><option value="20">After 20 minutes of play</option><option value="30">After 30 minutes of play</option></select>
+      <p class="note">When time is up, the game finishes the current mission, then asks for a 3-minute stretch break. A grown-up can skip it.</p>
+      <h3 style="margin:16px 0 4px">Sync across devices</h3>
+      <div id="syncBox"></div>
       <div class="btnrow"><button class="btn" id="testSound2">Test sound</button></div>
       <h3 style="margin:16px 0 4px">Saved progress</h3>
       <p class="note" id="persistNote"></p>
@@ -184,10 +251,12 @@
 
 <script src="js/clips.js"></script>
 <script src="js/data.js"></script>
+<script src="js/data2.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/store.js"></script>
 <script src="js/art.js"></script>
 <script src="js/problems.js"></script>
+<script src="js/trace.js"></script>
 <script src="js/game.js"></script>
 </body>
 </html>

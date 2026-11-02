@@ -92,3 +92,46 @@ const CYCLE_SVG=`<svg class="cycle-svg" viewBox="0 0 520 280" role="img" aria-la
 <rect x="132" y="96" width="136" height="24" rx="12" fill="#fff" stroke="#14142b" stroke-width="2"/><text x="200" y="113" text-anchor="middle" font-size="14">3. Precipitation</text>
 <text x="130" y="262" text-anchor="middle" font-size="13" fill="#fff">Ground water (fresh)</text>
 <text x="390" y="262" text-anchor="middle" font-size="13" fill="#fff">Ocean (salt water)</text></g></svg>`;
+
+/* ---------- v4 art ---------- */
+function numberLineSVG(min,max,step,at,labelEvery){
+  const W=600,P=30,span=max-min,x=v=>P+(v-min)/span*(W-2*P);
+  let t='';for(let v=min;v<=max;v+=step){const big=(v-min)%labelEvery===0;t+=`<line x1="${x(v)}" y1="${big?44:50}" x2="${x(v)}" y2="${big?76:70}" stroke="#14142b" stroke-width="${big?4:2}"/>`;
+    if(big&&v!==at)t+=`<text x="${x(v)}" y="104" text-anchor="middle" font-family="Nunito" font-weight="900" font-size="22" fill="#14142b">${v}</text>`;}
+  return `<svg viewBox="0 0 ${W} 120" class="nline" role="img" aria-label="Number line from ${min} to ${max}">
+  <line x1="${P-14}" y1="60" x2="${W-P+14}" y2="60" stroke="#14142b" stroke-width="5"/>
+  <path d="M${P-22} 60l12-9v18zM${W-P+22} 60l-12-9v18z" fill="#14142b"/>${t}
+  <path d="M${x(at)} 40l-14-24h28z" fill="#e63946" stroke="#14142b" stroke-width="3"/>
+  <text x="${x(at)}" y="104" text-anchor="middle" font-family="Bangers" font-size="30" fill="#e63946">?</text></svg>`;
+}
+function shapeSVG(id,size=170){
+  const st='stroke="#14142b" stroke-width="6"',f='#2a9df4';
+  const polys={triangle:'85,18 155,150 15,150',square:'25,25 145,25 145,145 25,145',rectangle:'10,45 160,45 160,125 10,125',
+    hexagon:'50,18 120,18 158,85 120,152 50,152 12,85',pentagon:'85,14 160,70 132,154 38,154 10,70'};
+  let body='';
+  if(polys[id])body=`<polygon points="${polys[id]}" fill="${f}" ${st} stroke-linejoin="round"/>`;
+  else if(id==='circle')body=`<circle cx="85" cy="85" r="68" fill="${f}" ${st}/>`;
+  else if(id==='oval')body=`<ellipse cx="85" cy="85" rx="76" ry="50" fill="${f}" ${st}/>`;
+  else if(id==='cube')body=`<polygon points="30,60 110,60 110,140 30,140" fill="#2a9df4" ${st}/><polygon points="30,60 60,30 140,30 110,60" fill="#7cc4fa" ${st}/><polygon points="110,60 140,30 140,110 110,140" fill="#1b6fb3" ${st}/>`;
+  else if(id==='sphere')body=`<circle cx="85" cy="85" r="68" fill="url(#sg)" ${st}/><ellipse cx="85" cy="85" rx="68" ry="20" fill="none" stroke="#14142b55" stroke-width="3" stroke-dasharray="6 6"/>`;
+  else if(id==='cone')body=`<path d="M85 14 150 140 A65 18 0 0 1 20 140z" fill="#ff8c00" ${st}/><ellipse cx="85" cy="140" rx="65" ry="18" fill="#ffb04d" ${st}/>`;
+  else if(id==='cylinder')body=`<path d="M25 40v95a60 18 0 0 0 120 0V40" fill="#2ec27e" ${st}/><ellipse cx="85" cy="40" rx="60" ry="18" fill="#7be0b0" ${st}/>`;
+  return `<svg viewBox="0 0 170 170" width="${size}" height="${size}" role="img" aria-label="shape"><defs><radialGradient id="sg" cx=".35" cy=".35"><stop offset="0" stop-color="#bfe3ff"/><stop offset="1" stop-color="#1b6fb3"/></radialGradient></defs>${body}</svg>`;
+}
+function pencilSVG(len,color='#ffd23f',unit=44,cubes=false){
+  const w=len*unit;
+  let c='';if(cubes)for(let i=0;i<len;i++)c+=`<rect x="${i*unit+1}" y="44" width="${unit-2}" height="${unit-2}" fill="${i%2?'#2ec27e':'#2a9df4'}" stroke="#14142b" stroke-width="2"/>`;
+  return `<svg viewBox="0 0 ${w+4} ${cubes?92:44}" width="${Math.min(w+4,620)}" role="img" aria-label="pencil ${len} long" style="max-width:100%">
+  <rect x="2" y="6" width="${w-34}" height="30" rx="4" fill="${color}" stroke="#14142b" stroke-width="3"/>
+  <rect x="2" y="6" width="16" height="30" rx="4" fill="#ff9eb5" stroke="#14142b" stroke-width="3"/>
+  <path d="M${w-32} 6 L${w+2} 21 L${w-32} 36z" fill="#f6c9a0" stroke="#14142b" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M${w-8} 17 L${w+2} 21 L${w-8} 25z" fill="#14142b"/>${c}</svg>`;
+}
+function petHTML(p,big){
+  const pet=PETS.find(x=>x.id===p.id)||PETS[0];
+  const st=petStage(p.xp);
+  const acc=st.i>=2?'<span class="pet-cape"></span>':'';
+  const crown=st.i>=3?'<span class="pet-crown">👑</span>':'';
+  return `<span class="pet ${big?'big':''}" style="--ps:${st.scale}" data-pet>${acc}<span class="pet-e">${pet.e}</span>${crown}</span>`;
+}
+function petStage(xp){let s={i:0,name:PET_STAGES[0][1],scale:PET_STAGES[0][2]};PET_STAGES.forEach((x,i)=>{if(xp>=x[0])s={i,name:x[1],scale:x[2]}});return s;}
