@@ -368,3 +368,29 @@ code.backup{display:block;word-break:break-all;background:#f3f3f3;border:2px das
 #playerChip{font-size:14px}
 
 @media(max-width:640px){.petslot{left:-4px;bottom:auto;top:-8px}.petslot .pet{font-size:34px}}
+
+/* ===== v4.1: read-aloud choices + Need help ===== */
+.ans.speaking{outline:6px solid var(--yellow);outline-offset:3px;transform:scale(1.07);box-shadow:0 0 0 10px #ffd23f66,6px 6px 0 var(--ink);z-index:2;position:relative;transition:transform .15s}
+.helprow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.helprow .sm-btn{font-size:16px;padding:8px 16px}
+.helpbtn{background:var(--green)!important;color:#fff!important}
+.helppanel{max-width:720px;width:100%;text-align:center;max-height:92vh;overflow:auto}
+.hpvis{margin:8px 0;display:flex;flex-direction:column;align-items:center;gap:6px}
+.hpvis .clock{max-width:200px}
+.hpvis svg{max-width:100%}
+.hrow{display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap}
+.hx{margin:4px 0}
+.hpsteps{text-align:left;margin:10px auto;max-width:600px;padding-left:28px}
+.hpsteps li{font-weight:800;font-size:clamp(17px,3.4vw,21px);line-height:1.35;padding:6px 10px;border-radius:10px;margin-bottom:4px}
+.hpsteps li.reading{background:#fff7d6;box-shadow:0 0 0 3px var(--yellow)}
+.hl{color:var(--red);text-decoration:underline;text-decoration-thickness:4px}
+.shapeguide{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.shapeguide>div{display:flex;flex-direction:column;align-items:center;width:96px}
+.shapeguide svg{width:80px;height:80px}
+.teamguide{display:grid;gap:6px;font-weight:800;font-size:clamp(17px,3.4vw,22px);text-align:left}
+.teamguide b{color:var(--red)}
+.helpcoins{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.helpcoins>div{display:flex;flex-direction:column;align-items:center;font-weight:800}
+.helpcap{font-weight:800;font-size:20px;max-width:560px}
+.helpstory{text-align:left;font-size:17px}
+.helpslots .slot{pointer-events:none}

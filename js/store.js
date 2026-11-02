@@ -56,7 +56,7 @@ function cleanProfile(p,id){
   for(const [k,v] of Object.entries(p.ms||{}).slice(0,200))if(/^[a-z]{1,10}:[a-z0-9]{1,12}$/.test(k))b.ms[k]=SAFE.num(v,0,3);
   b.spell=(Array.isArray(p.spell)?p.spell:[]).filter(w=>typeof w==='string'&&/^[a-z' -]{1,20}$/i.test(w)).slice(0,40);
   b.ses=(Array.isArray(p.ses)?p.ses:[]).slice(-15).filter(x=>x&&typeof x==='object').map(x=>({d:SAFE.str(x.d,20).replace(/[^0-9 :-]/g,''),w:SAFE.key(x.w,/^(math|word|water)$/)||'math',
-    m:SAFE.str(x.m,60),sc:SAFE.num(x.sc,0,100),n:SAFE.num(x.n,0,100),st:SAFE.num(x.st,0,1000),
+    m:SAFE.str(x.m,60),sc:SAFE.num(x.sc,0,100),n:SAFE.num(x.n,0,100),st:SAFE.num(x.st,0,1000),h:SAFE.num(x.h,0,100),
     mi:(Array.isArray(x.mi)?x.mi:[]).slice(0,8).map(m=>({w:SAFE.key(m&&m.w,/^(math|word|water)$/)||'math',s:cleanSpec(m&&m.s),l:SAFE.str(m&&m.l,60)}))}));
   b.rq=(Array.isArray(p.rq)?p.rq:[]).slice(-40).map(x=>x&&({s:cleanSpec(x.s),l:SAFE.str(x.l,60),due:SAFE.num(x.due,0,1e13),b:SAFE.num(x.b,0,3)})).filter(x=>x&&x.s);
   const d=p.daily||{};b.daily={days:(Array.isArray(d.days)?d.days:[]).filter(x=>typeof x==='string'&&/^\d{4}-\d\d-\d\d$/.test(x)).slice(-90),streak:SAFE.num(d.streak,0,9999),best:SAFE.num(d.best,0,9999)};
@@ -68,7 +68,7 @@ function cleanProfile(p,id){
 }
 function normalize(f){
   const set=f.set||{};
-  f.set={voice:SAFE.key(set.voice,/^(hero|device)$/)||'hero',music:set.music!==false,breakMin:[0,15,20,30].includes(+set.breakMin)?+set.breakMin:0};
+  f.set={voice:SAFE.key(set.voice,/^(hero|device)$/)||'hero',music:set.music!==false,readChoices:set.readChoices!==false,breakMin:[0,15,20,30].includes(+set.breakMin)?+set.breakMin:0};
   const profs={};
   for(const [id,p] of Object.entries(f.profiles||{}).slice(0,5)){const cid=SAFE.key(id,/^[a-z0-9]{1,12}$/);if(cid)profs[cid]=cleanProfile(p,cid);}
   if(!Object.keys(profs).length){const p=newProfile();profs[p.id]=p;}

@@ -6,6 +6,11 @@ A free, superhero-themed learning game for first graders that runs in any web br
 
 Villains are attacking. Kids pick a hero, answer questions, and every right answer fires a power blast at the villain. Win a mission to save the day, earn stars, unlock hero gear, and grow a sidekick.
 
+## What's new in version 4.1
+
+- **Answers read out loud**: after each question, the hero voice reads every answer choice while that button lights up. Tap **Hear the answers** to hear them again. (Sight-word questions skip this, because hearing the words would give the answer away.) Grown-ups can turn it off in Settings.
+- **Need help?**: every question has a help button that shows a worked example of the same skill with different numbers or words, read aloud step by step, then returns to the question. The progress report shows how often help was used.
+
 ## What's new in version 4
 
 - **Daily Mission**: a 5-minute mixed mission each day, with a streak calendar and bonus stars

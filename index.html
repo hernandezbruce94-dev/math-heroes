@@ -194,6 +194,15 @@
   </div>
 </div>
 
+<!-- HELP -->
+<div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="hpHead">
+  <div class="panel helppanel">
+    <div class="sc-title" id="hpHead">Hero Tip: here's how</div>
+    <div class="hpvis" id="hpVis"></div>
+    <ol class="hpsteps" id="hpSteps"></ol>
+    <div class="btnrow" style="justify-content:space-between"><button class="btn ghost" id="hpAgain">Hear it again</button><button class="btn" id="hpClose">Got it! Back to my question</button></div>
+  </div>
+</div>
 <!-- GROWN-UP GATE -->
 <div class="modal" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateQ">
   <div class="panel" style="max-width:440px">
@@ -228,6 +237,7 @@
       <label class="field" for="setVoice">Voice</label>
       <select class="inp" id="setVoice"><option value="hero">Hero voice (recorded, same on every device)</option><option value="device">Device voice (uses this device's voices)</option></select>
       <div id="devVoiceRow"><label class="field" for="voicePick">Device voice</label><select class="inp" id="voicePick"></select></div>
+      <label class="field"><input type="checkbox" id="setReadCh"> Read the answer choices out loud (each one lights up as it is read)</label>
       <label class="field"><input type="checkbox" id="setMusic"> Theme music</label>
       <label class="field" for="setBreak">Break reminder</label>
       <select class="inp" id="setBreak"><option value="0">Off</option><option value="15">After 15 minutes of play</option><option value="20">After 20 minutes of play</option><option value="30">After 30 minutes of play</option></select>
@@ -257,6 +267,7 @@
 <script src="js/art.js"></script>
 <script src="js/problems.js"></script>
 <script src="js/trace.js"></script>
+<script src="js/assist.js"></script>
 <script src="js/game.js"></script>
 </body>
 </html>

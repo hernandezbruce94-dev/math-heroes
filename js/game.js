@@ -207,6 +207,11 @@ function nextQ(first){
   else if(current.type==='sentence'){buildSentence();$('qbody').appendChild(vis);}
   else if(current.type==='read'){wireRead();}
   else if(current.type==='empty'){$('qbody').innerHTML=`<div class="prompt">No spelling words yet</div><p style="font-weight:800;font-size:20px;margin:10px 0">Ask a grown-up to tap <b>Grown-ups</b> on the start screen and add this week's spelling words.</p><button class="btn blue" onclick="goHome()">Back to start</button>`;say(current.seq,current.text);return;}
+  if(readsChoicesOK(current)||hasHelp(current)){const row=document.createElement('div');row.className='helprow';
+    row.innerHTML=(readsChoicesOK(current)?'<button class="sm-btn" data-hearch>🔊 Hear the answers</button>':'')+(hasHelp(current)?'<button class="sm-btn helpbtn" data-help>Need help?</button>':'');
+    const ansBox=$('qbody').querySelector('.answers');if(ansBox)ansBox.before(row);else $('qbody').appendChild(row);
+    row.querySelectorAll('[data-hearch]').forEach(b=>b.onclick=()=>{stopChoices();readChoices();});
+    row.querySelectorAll('[data-help]').forEach(b=>b.onclick=openHelp);}
   $('qbody').querySelectorAll('[data-hear]').forEach(b=>b.onclick=()=>speakCurrent());
   $('qbody').querySelectorAll('[data-peek]').forEach(b=>b.onclick=()=>{$('peekWord').textContent=current.ans;b.disabled=true;});
   let delay=bossRound&&!first?2000:first?350:250;
@@ -215,7 +220,14 @@ function nextQ(first){
   setTimeout(speakCurrent,delay);
   preload([...current.seq,...(current.hintSeq||[]),'praise0','praise1','praise2','try0']);
 }
-function speakCurrent(){if(current)say(current.seq,current.text,{gap:current.gap});}
+async function speakCurrent(){
+  if(!current)return;const P=current;stopChoices();
+  const auto=FAM.set.readChoices!==false&&readsChoicesOK(P);
+  // rhyme questions name the choices in the question; when choices are read separately, skip that part
+  const seq=auto&&P.spec.t==='rhyme'?P.seq.slice(0,2):P.seq;
+  const ok=await sayWait(seq,auto&&P.spec.t==='rhyme'?`Which word rhymes with ${P.spec.w}?`:P.text,{gap:P.gap});
+  if(ok&&auto&&current===P&&!G.busy){await pause(350);if(current===P&&!G.busy)readChoices();}
+}
 function renderChoices(){
   const box=document.createElement('div');const lay=current.layout||'';box.className='answers '+lay;
   current.choices.forEach(c=>{
@@ -230,7 +242,7 @@ function renderChoices(){
 const PRAISE=['Super job!','Power up!','Heroic!','You got it!','Amazing!','Way to go, hero!','Boom! Correct!'];
 const TRYMSG=['Almost! Try again.','Not quite. You can do it!','Keep going, hero!'];
 function answer(v,btn){
-  if(G.busy)return;
+  if(G.busy)return;stopChoices();
   if(String(v)===String(current.ans)){document.querySelectorAll('.ans').forEach(b=>b.disabled=true);btn.classList.add('right');if(current.full&&$('mword'))$('mword').textContent=current.full;correct();}
   else{btn.disabled=true;miss(String(v));}
 }
@@ -483,7 +495,7 @@ function winGame(){
     const newT=PET_TRICKS.filter(t=>t[0]>px&&t[0]<=nx),grew=petStage(nx).i>petStage(px).i;
     if(grew){extra.push(`${SAVE.pet.name} grew to ${petStage(nx).name}!`);seqs.push('pet_grow');}
     if(newT.length){extra.push(`${SAVE.pet.name} learned: ${newT.map(t=>t[2]).join(', ')}`);if(!grew)seqs.push('pet_trick');}}
-  recordSession({d:new Date().toISOString().slice(0,16).replace('T',' '),w:G.world,m:G.mode.name+(G.tp?' (2 players)':''),sc:G.tp?G.tp.first[0]:G.first,n:G.tp?Math.ceil(G.total/2):G.total,st:p1Stars,mi:G.missed.slice(0,8)});
+  recordSession({d:new Date().toISOString().slice(0,16).replace('T',' '),w:G.world,m:G.mode.name+(G.tp?' (2 players)':''),sc:G.tp?G.tp.first[0]:G.first,n:G.tp?Math.ceil(G.total/2):G.total,st:p1Stars,mi:G.missed.slice(0,8),h:G.helps||0});
   const vName=G.isBoss?'Mega '+v.name.replace(/^The /,''):G.mixed?'the villains':v.name;
   if(G.tp){const [a,b]=G.tp.stars;$('winText').innerHTML=`Team hero defeated ${vName}!<br>${escapeHTML(TP.names[0])}: ★${a} &nbsp; ${escapeHTML(TP.names[1])}: ★${b}`;seqs.unshift('team_win');}
   else $('winText').textContent=`${h.name} defeated ${vName}! ${SAVE.kid?SAVE.kid+', you':'You'} got ${G.first} of ${G.total} on the first try and earned ${G.stars} stars.`;
@@ -514,7 +526,7 @@ function confetti(){
     c.style.animationDuration=(2+Math.random()*2)+'s';c.style.animationDelay=Math.random()*.6+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),5000);}
   for(let i=0;i<4;i++)setTimeout(()=>burst(rnd(100,FW-100),rnd(100,FH/2),pick(colors),50),i*350);
 }
-function goHome(){stopVoice();stopMic();Music.set('normal');if(G&&G.afterScene){const [sw,at]=G.afterScene;G.afterScene=null;playScene(sw,at,goHome);return;}
+function goHome(){stopVoice();stopChoices();helpRun++;closeModal('helpModal');stopMic();Music.set('normal');if(G&&G.afterScene){const [sw,at]=G.afterScene;G.afterScene=null;playScene(sw,at,goHome);return;}
   if(breakDue){startBreak(goHome);return;}renderAll();show('start');}
 
 /* ---------- story scenes ---------- */
@@ -594,6 +606,7 @@ $('gateIn').onkeydown=e=>{if(e.key==='Enter')$('gateGo').click();};
 function openModal(id){$(id).classList.add('open');}
 function closeModal(id){$(id).classList.remove('open');}
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>{closeModal(b.dataset.close);if(b.dataset.close==='parent')renderAll();});
+$('hpClose').onclick=closeHelp;
 function openParent(tab){openModal('parent');parentTab(tab);}
 document.querySelectorAll('#ptabs button').forEach(b=>b.onclick=()=>parentTab(b.dataset.tab));
 function parentTab(tab){
@@ -622,7 +635,7 @@ function renderReport(){
      <div class="btnrow"><button class="btn blue" id="reviewBtn">Start a Review Mission with these</button></div>
      <p class="note">Missed problems also come back on their own in the Daily Mission after 1, 3, and 7 days.</p>`:'<p class="note">Nothing missed yet. Great work!</p>'}
    <h3 style="margin:14px 0 4px">Recent missions</h3>
-   ${ses.length?`<table class="rep"><tr><th>When</th><th>Mission</th><th>First try</th><th>Stars</th></tr>${ses.map(s=>`<tr><td>${s.d}</td><td>${escapeHTML(s.m)}</td><td>${s.sc} of ${s.n}</td><td>${s.st}</td></tr>`).join('')}</table>`:'<p class="note">No missions played yet.</p>'}`;
+   ${ses.length?`<table class="rep"><tr><th>When</th><th>Mission</th><th>First try</th><th>Stars</th><th>Help used</th></tr>${ses.map(s=>`<tr><td>${s.d}</td><td>${escapeHTML(s.m)}</td><td>${s.sc} of ${s.n}</td><td>${s.st}</td><td>${s.h||0}</td></tr>`).join('')}</table>`:'<p class="note">No missions played yet.</p>'}`;
   if($('reviewBtn'))$('reviewBtn').onclick=()=>{const list=top.map(([l])=>specs[l]).filter(Boolean).slice(0,10);closeModal('parent');unlockAudio();startGame({list,kind:'review'});};
 }
 function renderPlayers(){
@@ -636,7 +649,7 @@ function renderPlayers(){
   if($('plAdd'))$('plAdd').onclick=()=>{addProfile('New player');renderPlayers();};
 }
 function renderSettings(){
-  $('setVoice').value=AUDIO.voiceMode;$('setMusic').checked=AUDIO.musicOn;$('setBreak').value=String(FAM.set.breakMin||0);fillVoicePicker();
+  $('setVoice').value=AUDIO.voiceMode;$('setMusic').checked=AUDIO.musicOn;$('setReadCh').checked=FAM.set.readChoices!==false;$('setBreak').value=String(FAM.set.breakMin||0);fillVoicePicker();
   $('devVoiceRow').style.display=AUDIO.voiceMode==='device'?'':'none';
   $('persistNote').textContent=canPersist?'Progress is saved in this browser on this device.':'Progress cannot be saved in this preview window. On the published site it saves automatically.';
   $('backupOut').textContent='';$('restoreMsg').textContent='';$('resetBtn').textContent='Reset all progress';
@@ -665,6 +678,7 @@ function fillVoicePicker(){const sel=$('voicePick');if(!sel)return;
   sel.innerHTML=voiceList.length?voiceList.map((v,i)=>`<option value="${i}" ${v===voice?'selected':''}>${isMale(v)?'Hero: ':''}${v.name.replace(/Microsoft |Online \(Natural\)| - English \(.*\)/g,'').trim()} (${v.lang})</option>`).join(''):'<option>No device voices found</option>';}
 $('setVoice').onchange=e=>{AUDIO.voiceMode=e.target.value;FAM.set.voice=AUDIO.voiceMode;persist();renderSettings();say(['intro'],'Never fear, hero! Let\'s save the day!');};
 $('voicePick').onchange=e=>{voice=voiceList[+e.target.value];userPickedVoice=true;deviceSay('Never fear, hero! Let\'s save the day!');};
+$('setReadCh').onchange=e=>{FAM.set.readChoices=e.target.checked;persist();};
 $('setMusic').onchange=e=>{AUDIO.musicOn=e.target.checked;FAM.set.music=AUDIO.musicOn;persist();Music.refresh();renderTop();};
 $('setBreak').onchange=e=>{FAM.set.breakMin=+e.target.value;persist();};
 $('testSound2').onclick=soundCheck;
