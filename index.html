@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Math Heroes: Save the City</title>
-<meta name="description" content="A free superhero learning game for first graders: math, reading, spelling, and the water cycle.">
+<meta name="description" content="A free superhero learning game for early readers: math, phonics, reading, spelling, and the water cycle.">
 <meta name="theme-color" content="#141f55">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Math Heroes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lexend:wght@500;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
 <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'none'; frame-src 'none'">
 <link rel="stylesheet" href="css/styles.css">
 <script>window.__API_BASE__='__PORT_8000__';</script>
@@ -31,7 +31,7 @@
   <!-- START -->
   <section id="start" class="screen active">
     <div class="topbar">
-      <div class="rank"><button class="sm-btn on" id="playerChip">Who's playing?</button> <span id="rankTag">Rookie Hero · 0 XP</span> <span id="starTag">★ 0</span></div>
+      <div class="rank"><button class="sm-btn on" id="playerChip">Who's playing?</button> <span id="rankTag">Rookie Hero · 0 XP</span> <span id="starTag">★ 0</span> <button class="sm-btn glasschip" id="glassChip" style="display:none">👓 Glasses time</button></div>
       <div class="btnrow" style="margin:0">
         <button class="sm-btn" id="soundCheckBtn">Test sound</button>
         <button class="sm-btn on" id="musicBtn">Music: On</button>
@@ -56,6 +56,7 @@
         <button class="pick world math sel" data-world="math">Math City<small>Numbers, time &amp; money</small></button>
         <button class="pick world word" data-world="word">Word World<small>Reading &amp; spelling</small></button>
         <button class="pick world water" data-world="water">Water World<small>The water cycle</small></button>
+        <button class="pick world lab" data-world="lab">Reading Lab<small>Sound it out</small></button>
       </div>
       <h2 style="font-size:26px">3. Pick your mission <span class="voicechip" id="lvlTag" style="color:var(--green)"></span> <button class="sm-btn" id="storyBtn" style="font-size:13px;padding:4px 10px">Watch story</button></h2>
       <div class="grid modes" id="modePicks"></div>
@@ -194,6 +195,21 @@
   </div>
 </div>
 
+<!-- GLASSES -->
+<div class="modal" id="eyeModal" role="dialog" aria-modal="true" aria-label="Set up the glasses">
+  <div class="panel eyepanel"><h2>Glasses setup</h2><div id="eyeBody"></div>
+    <div class="btnrow" style="justify-content:space-between"><button class="btn ghost" id="eyeBack">Back</button><button class="btn ghost" data-close="eyeModal">Cancel</button><button class="btn" id="eyeNext">Next</button></div></div>
+</div>
+<div class="modal" id="glassOnModal" role="dialog" aria-modal="true" aria-label="Put on your glasses">
+  <div class="panel eyepanel" style="text-align:center"><div class="sc-title">Hero glasses on!</div><div id="glassOnArt"></div>
+    <p style="font-weight:900;font-size:20px">Red lens on your RIGHT eye. Green lens on your LEFT eye.</p>
+    <div class="btnrow" style="justify-content:center"><button class="btn" data-close="glassOnModal">My glasses are on!</button></div></div>
+</div>
+<div class="modal" id="glassDoneModal" role="dialog" aria-modal="true" aria-label="Glasses time is done">
+  <div class="panel eyepanel" style="text-align:center"><div class="sc-title">Great eye training!</div><div class="pic">👓✨</div>
+    <p style="font-weight:900;font-size:20px">Glasses time is done. You can take your glasses off now.</p>
+    <div class="btnrow" style="justify-content:center"><button class="btn" data-close="glassDoneModal">OK</button></div></div>
+</div>
 <!-- HELP -->
 <div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="hpHead">
   <div class="panel helppanel">
@@ -228,7 +244,7 @@
       <label class="field" for="spellIn">This week's spelling words (one per line, up to 20)</label>
       <textarea id="spellIn" placeholder="cat&#10;stop&#10;said"></textarea>
       <p class="note">These show up in Word World → My Spelling List. Words the hero voice doesn't know are read with the device voice.</p>
-      <div class="btnrow"><button class="btn blue" id="saveList">Save words</button></div>
+      <div class="btnrow"><button class="btn blue" id="saveList">Save words</button><button class="btn ghost" id="loadWeek">Load school list: Three-letter blends</button></div>
       <p class="note" id="listMsg"></p>
     </div>
     <div class="ptab" id="pt-report" style="display:none"><div id="repBody"></div></div>
@@ -239,6 +255,15 @@
       <div id="devVoiceRow"><label class="field" for="voicePick">Device voice</label><select class="inp" id="voicePick"></select></div>
       <label class="field"><input type="checkbox" id="setReadCh"> Read the answer choices out loud (each one lights up as it is read)</label>
       <label class="field"><input type="checkbox" id="setMusic"> Theme music</label>
+      <h3 style="margin:16px 0 4px">Reading help</h3>
+      <label class="field"><input type="checkbox" id="setEasy"> Easy-read letters (a clearer font with extra space between letters and words)</label>
+      <label class="field"><input type="checkbox" id="setBig"> Bigger text</label>
+      <label class="field"><input type="checkbox" id="setCalm"> Calm mode (no screen shaking or flashing, fewer sparkles)</label>
+      <h3 style="margin:16px 0 4px">Red/green glasses mode</h3>
+      <label class="field"><input type="checkbox" id="setGlass"> Use red and green glasses during lessons</label>
+      <p class="note" id="glassStatus"></p>
+      <div class="btnrow" style="margin-top:0"><button class="btn blue" id="glassSetup">Set up the glasses</button></div>
+      <p class="note">Glasses mode shows the important words in the color the training eye can see, so the eyes practice during reading. It is extra practice and does not replace a prescribed vision program. Check with your child's eye doctor before adding glasses time.</p>
       <label class="field" for="setBreak">Break reminder</label>
       <select class="inp" id="setBreak"><option value="0">Off</option><option value="15">After 15 minutes of play</option><option value="20">After 20 minutes of play</option><option value="30">After 30 minutes of play</option></select>
       <p class="note">When time is up, the game finishes the current mission, then asks for a 3-minute stretch break. A grown-up can skip it.</p>
@@ -262,12 +287,14 @@
 <script src="js/clips.js"></script>
 <script src="js/data.js"></script>
 <script src="js/data2.js"></script>
+<script src="js/data3.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/store.js"></script>
 <script src="js/art.js"></script>
 <script src="js/problems.js"></script>
 <script src="js/trace.js"></script>
 <script src="js/assist.js"></script>
+<script src="js/lab.js"></script>
 <script src="js/game.js"></script>
 </body>
 </html>

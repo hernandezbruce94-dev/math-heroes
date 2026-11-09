@@ -33,8 +33,8 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
 .grid{display:grid;gap:14px}
 .heroes{grid-template-columns:repeat(4,1fr)}
 .modes{grid-template-columns:repeat(2,1fr)}
-.worlds{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
-@media(max-width:600px){.worlds{grid-template-columns:1fr}}
+.worlds{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+@media(max-width:600px){.worlds{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.heroes{grid-template-columns:repeat(2,1fr)}.modes{grid-template-columns:1fr}}
 .pick{background:#fff;border:4px solid var(--ink);border-radius:18px;padding:12px 8px;cursor:pointer;text-align:center;
   font:800 18px 'Nunito';transition:transform .12s,box-shadow .12s;box-shadow:4px 4px 0 var(--ink);color:var(--ink)}
@@ -278,7 +278,7 @@ code.backup{display:block;word-break:break-all;background:#f3f3f3;border:2px das
   .modes .pick{padding:10px 6px}
   .modes .pick span:first-child{font-size:16px!important}
   .modes .pick small{font-size:12px}
-  .worlds{grid-template-columns:repeat(3,1fr)!important;gap:8px}
+  .worlds{grid-template-columns:repeat(2,1fr)!important;gap:8px}
   .world{font-size:20px;padding:10px 4px}
   .world small{font-size:11px}
   .panel{padding:16px}
@@ -394,3 +394,56 @@ code.backup{display:block;word-break:break-all;background:#f3f3f3;border:2px das
 .helpcap{font-weight:800;font-size:20px;max-width:560px}
 .helpstory{text-align:left;font-size:17px}
 .helpslots .slot{pointer-events:none}
+
+/* ===== v5: Reading Lab ===== */
+.world.lab{background:#3d348b}.world.lab.sel{background:var(--yellow);color:var(--ink)}
+body.lab-world{background:radial-gradient(circle at 50% 0%,#6c63ff,#1b1464 70%);--bgimg:url(../img/bg-lab.webp)}
+.chunks{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+.chunk{font:900 clamp(40px,10vw,68px)/1 'Nunito';min-width:1.3em;padding:8px 14px;border:4px solid var(--ink);border-radius:16px;background:#fff7d6;color:var(--ink);box-shadow:4px 4px 0 var(--ink);cursor:pointer}
+.chunk.lit{background:var(--yellow);transform:translateY(-4px)}
+.chunk.quiet,.quiet{color:#b8b8b8}
+.cross{text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:5px}
+.tiny{font-weight:800;font-size:15px;color:#555;margin:4px 0}
+.sboxes{display:flex;gap:8px;justify-content:center;margin:10px 0;min-height:64px}
+.sbx{width:64px;height:64px;border:4px dashed var(--ink);border-radius:12px;display:flex;align-items:center;justify-content:center;font:900 34px 'Nunito';background:#fff}
+.sbx.f{border-style:solid;background:#d8f5e5}
+.e.big{font-size:64px;line-height:1.1}
+.glyph{display:inline-block;font:900 64px/1 'Nunito'}
+.glyph.mir{transform:scaleX(-1)}
+.glyph.ups{transform:rotate(180deg)}
+.bedtrick{font:900 64px 'Nunito';letter-spacing:6px}.bedtrick b{color:var(--red)}
+.qtext.big{font-size:clamp(24px,5vw,32px);font-weight:900;margin:8px 0}
+/* line reader: the line being read is bright, the rest fades back */
+.lines{list-style:none;max-width:720px;margin:10px auto;text-align:left;padding:0}
+.lines li{font:800 clamp(22px,5vw,32px)/1.5 'Nunito';padding:8px 14px;border-radius:12px;margin-bottom:6px;transition:opacity .2s,background .2s}
+.lines li.cur{background:#fff7d6;box-shadow:0 0 0 4px var(--yellow);opacity:1}
+.lines li.later{opacity:.18}
+.lines li.done{opacity:.55}
+.lines .rw.lit{background:var(--yellow);border-radius:6px}
+/* reading help */
+body.easyread .problem.word,body.easyread .chunk,body.easyread .prompt,body.easyread .qtext,body.easyread .storytext,body.easyread .lines li,
+body.easyread .captions li,body.easyread .ans.txt,body.easyread .ans.long,body.easyread .ans.pic,body.easyread .hpsteps li,body.easyread .tile,body.easyread .wtile,body.easyread .slot{font-family:'Lexend','Nunito',sans-serif;letter-spacing:.06em;word-spacing:.25em}
+body.easyread .lines li,body.easyread .captions li{line-height:1.8}
+body.bigtext .prompt{font-size:clamp(26px,5vw,34px)}
+body.bigtext .qtext,body.bigtext .storytext{font-size:clamp(24px,5vw,32px)}
+body.bigtext .ans.long,body.bigtext .ans.txt{font-size:clamp(24px,5vw,32px)}
+body.calm .shake,body.calm .shakeall,body.calm .bounce{animation:none!important}
+body.calm #flash{display:none!important}
+body.calm .boom.show{animation-duration:.01s}
+/* red/green glasses mode: white panel, training-eye ink for words and answers, lighter ink for the other eye */
+body.glasses #qpanel{background:#fff!important;box-shadow:8px 8px 0 #222}
+body.glasses #qpanel .problem,body.glasses #qpanel .chunk,body.glasses #qpanel .sk,body.glasses #qpanel .sbx,body.glasses #qpanel .cmp,
+body.glasses #qpanel .glyph,body.glasses #qpanel .tile,body.glasses #qpanel .slot,body.glasses #qpanel .wtile,body.glasses #qpanel .lines li.cur{color:var(--gw)!important}
+body.glasses #qpanel .ans{background:#fff!important;color:var(--gw)!important;border-color:#222}
+body.glasses #qpanel .chunk,body.glasses #qpanel .tile,body.glasses #qpanel .wtile,body.glasses #qpanel .sk,body.glasses #qpanel .lines li.cur{background:#fff!important}
+body.glasses #qpanel .prompt,body.glasses #qpanel .qtext,body.glasses #qpanel .storytext,body.glasses #qpanel .hintbox,body.glasses #qpanel .lines li.done,
+body.glasses #qpanel .lines li.later,body.glasses #qpanel .tiny,body.glasses #feedback{color:var(--gs)!important}
+body.glasses #qpanel .lines li.later{opacity:.5}
+body.glasses .gw{color:var(--gw)!important}body.glasses .gs{color:var(--gs)!important}
+.glasschip.on{background:var(--green)!important;color:#fff!important}
+.eyepanel{max-width:620px;width:100%;max-height:92vh;overflow:auto}
+.eyepanel h3{margin:6px 0}
+.eyepanel input[type=range]{width:100%;height:36px}
+.calbox{background:#fff;border:4px solid #222;border-radius:16px;display:flex;justify-content:center;align-items:center;gap:30px;padding:18px;margin:10px 0}
+.calstar{font-size:90px;line-height:1}.calword{font:900 56px 'Nunito'}
+.calbox.duo span{font:900 48px 'Nunito'}

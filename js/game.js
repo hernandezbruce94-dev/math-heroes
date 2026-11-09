@@ -16,7 +16,7 @@ function toast(t){const b=$('toast');b.textContent=t;b.classList.add('show');cle
 const cv=$('fx'),cx=cv.getContext('2d');let FW,FH,starsBg=[],parts=[],superMode=false;
 function resize(){FW=cv.width=innerWidth;FH=cv.height=innerHeight;starsBg=Array.from({length:Math.floor(FW*FH/9000)},()=>({x:Math.random()*FW,y:Math.random()*FH,z:Math.random()*2+.4}));}
 addEventListener('resize',resize);resize();
-function burst(x,y,color,n=30){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=Math.random()*7+2;
+function burst(x,y,color,n=30){if(FAM&&FAM.set&&FAM.set.calm)n=Math.min(n,8);for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=Math.random()*7+2;
   const c=color==='rainbow'?pick(['#e63946','#ff8c00','#ffd23f','#2ec27e','#2a9df4','#c77dff']):color==='cosmic'?pick(['#c77dff','#ffffff','#7b2cbf','#2a9df4']):(Math.random()<.5?color:'#ffd23f');
   parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,c,r:Math.random()*5+3});}}
 (function loop(){
@@ -30,7 +30,7 @@ function burst(x,y,color,n=30){for(let i=0;i<n;i++){const a=Math.random()*Math.P
 
 /* ---------- start screen ---------- */
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo(0,0)}
-function setWorldBg(w){document.body.classList.remove('math-world','word-world','water-world');document.body.classList.add(w+'-world')}
+function setWorldBg(w){document.body.classList.remove('math-world','word-world','water-world','lab-world');document.body.classList.add(w+'-world')}
 function renderTop(){
   $('rankTag').textContent=`${rankName()} · ${SAVE.xp} XP`;
   $('starTag').textContent=`★ ${SAVE.stars}`;
@@ -64,7 +64,7 @@ function renderModes(){
     box.appendChild(b);
   });
   const done=SCENES[world].filter(s=>SAVE.scenes[world+':'+s.at]).length;
-  $('lvlTag').textContent=(world==='water'?'':`${world==='math'?'Math':'Word'} level ${SAVE.lv[world]} · `)+`Story ${done}/4`;
+  $('lvlTag').textContent=(world==='water'?'':`${{math:'Math',word:'Word',lab:'Reading'}[world]} level ${SAVE.lv[world]||1} · `)+`Story ${done}/4`;
 }
 document.querySelectorAll('.world').forEach(b=>b.onclick=()=>{world=b.dataset.world;mode=MODES[world][0];renderWorlds();renderModes();sfx('click');});
 
@@ -136,10 +136,10 @@ function openTwoP(){
 /* ---------- runs ---------- */
 function startDaily(){
   const list=rqDue(3).map(x=>x.s);
-  const L=SAVE.lv;const plan=['mix','wordmix','mix','wordmix','water','mix','wordmix','mix'];
+  const L=SAVE.lv;const plan=['labmix','mix','wordmix','labmix','water','mix','labmix','wordmix'];
   seen=[];
   for(const p of plan){if(list.length>=8)break;
-    if(p==='water')list.push(GEN[pick(['wvocab','wcycle','wfacts'])]());else list.push(GEN[p](p==='mix'?L.math:L.word));}
+    if(p==='water')list.push(GEN[pick(['wvocab','wcycle','wfacts'])]());else list.push(GEN[p](p==='mix'?L.math:p==='labmix'?(L.lab||1):L.word));}
   startGame({list:shuffle(list),kind:'daily',name:'Daily Mission'});
 }
 function startGame(opts={}){
@@ -147,6 +147,8 @@ function startGame(opts={}){
   let list=opts.list||null,kind=opts.kind||null;
   if(!list&&mode.id==='read'){const unread=READS.map((r,i)=>i).filter(i=>!(SAVE.rd||[]).includes(i));const i=unread.length?pick(unread):rnd(0,READS.length-1);
     list=[{t:'read',i},{t:'rq',i,j:0},{t:'rq',i,j:1},{t:'rq',i,j:2}];kind='read';}
+  if(!list&&mode.id==='lread'){const i=rnd(0,LSTORIES.length-1);list=[{t:'lrd',i},{t:'lq',i,j:0},{t:'lq',i,j:1}];kind='read';}
+  checkGlassTime();
   const isBoss=mode.id==='boss'&&!list;
   // story scene before the first mission or the boss
   if(!opts.skipScene&&!list){const at=isBoss?'boss':'intro';if(!SAVE.scenes[world+':'+at]){playScene(world,at,()=>startGame(Object.assign({},opts,{skipScene:true})));return;}}
@@ -155,7 +157,7 @@ function startGame(opts={}){
   G={world:w,homeWorld:world,mode:list?{id:kind||'review',name:opts.name||(kind==='read'?'Hero Stories':'Review Mission')}:mode,list,kind,isBoss,mixed:!!list&&kind!=='read',
      total,q:0,stars:0,first:0,tries:0,streak:0,best:0,lvl:SAVE.lv[w]||1,lvStreak:0,lvMiss:0,missed:[],learned:[],busy:false,hp:total,started:Date.now(),
      tp:TP.on?{turn:0,stars:[0,0],first:[0,0]}:null};
-  if(kind==='read'&&mode.id==='read')G.mode=mode;
+  if(kind==='read'&&(mode.id==='read'||mode.id==='lread'))G.mode=mode;
   seen=[];setSuper(false);
   const v=VILLAINS[w],h=currentHero();
   document.documentElement.style.setProperty('--hero',h.blast.startsWith('#')?h.blast:'#c77dff');
@@ -206,7 +208,9 @@ function nextQ(first){
   else if(current.type==='trace'){Trace.mount($('traceBox'),current.ans,traceDone);$('qbody').appendChild(vis);}
   else if(current.type==='sentence'){buildSentence();$('qbody').appendChild(vis);}
   else if(current.type==='read'){wireRead();}
+  else if(current.type==='lread'){wireLread();}
   else if(current.type==='empty'){$('qbody').innerHTML=`<div class="prompt">No spelling words yet</div><p style="font-weight:800;font-size:20px;margin:10px 0">Ask a grown-up to tap <b>Grown-ups</b> on the start screen and add this week's spelling words.</p><button class="btn blue" onclick="goHome()">Back to start</button>`;say(current.seq,current.text);return;}
+  wireChunks();glassesForQuestion();
   if(readsChoicesOK(current)||hasHelp(current)){const row=document.createElement('div');row.className='helprow';
     row.innerHTML=(readsChoicesOK(current)?'<button class="sm-btn" data-hearch>🔊 Hear the answers</button>':'')+(hasHelp(current)?'<button class="sm-btn helpbtn" data-help>Need help?</button>':'');
     const ansBox=$('qbody').querySelector('.answers');if(ansBox)ansBox.before(row);else $('qbody').appendChild(row);
@@ -243,7 +247,7 @@ const PRAISE=['Super job!','Power up!','Heroic!','You got it!','Amazing!','Way t
 const TRYMSG=['Almost! Try again.','Not quite. You can do it!','Keep going, hero!'];
 function answer(v,btn){
   if(G.busy)return;stopChoices();
-  if(String(v)===String(current.ans)){document.querySelectorAll('.ans').forEach(b=>b.disabled=true);btn.classList.add('right');if(current.full&&$('mword'))$('mword').textContent=current.full;correct();}
+  if(String(v)===String(current.ans)){document.querySelectorAll('.ans').forEach(b=>b.disabled=true);btn.classList.add('right');if(current.full&&$('mword'))$('mword').textContent=current.full;if(current.onRight)current.onRight();correct();}
   else{btn.disabled=true;miss(String(v));}
 }
 const isP1=()=>!G.tp||G.tp.turn===0;
@@ -316,7 +320,7 @@ function attack(mega){
     boom.classList.remove('show');void boom.offsetWidth;boom.classList.add('show');
     $('villainHp').style.width=(Math.max(0,G.hp)/G.total*100)+'%';
     const r=vb.getBoundingClientRect();burst(r.left+r.width/2,r.top+70,h.blastFx&&h.blastFx!=='normal'?h.blastFx:h.blast,mega?70:30);
-    if(mega){const f=$('flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');const m=$('main');m.classList.remove('shakeall');void m.offsetWidth;m.classList.add('shakeall');}
+    if(mega&&!FAM.set.calm){const f=$('flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');const m=$('main');m.classList.remove('shakeall');void m.offsetWidth;m.classList.add('shakeall');}
     sfx('boom');
     if(G.hp>0&&Math.random()<.35){const v=VILLAINS[G.world];const hi=rnd(0,v.hurt.length-1);taunt(v.hurt[hi]);setTimeout(()=>villainSay(`v_${G.world}_h${hi}`),900);}
   },480);
@@ -526,7 +530,7 @@ function confetti(){
     c.style.animationDuration=(2+Math.random()*2)+'s';c.style.animationDelay=Math.random()*.6+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),5000);}
   for(let i=0;i<4;i++)setTimeout(()=>burst(rnd(100,FW-100),rnd(100,FH/2),pick(colors),50),i*350);
 }
-function goHome(){stopVoice();stopChoices();helpRun++;closeModal('helpModal');stopMic();Music.set('normal');if(G&&G.afterScene){const [sw,at]=G.afterScene;G.afterScene=null;playScene(sw,at,goHome);return;}
+function goHome(){checkGlassTime();lineRun++;stopVoice();stopChoices();helpRun++;closeModal('helpModal');stopMic();Music.set('normal');if(G&&G.afterScene){const [sw,at]=G.afterScene;G.afterScene=null;playScene(sw,at,goHome);return;}
   if(breakDue){startBreak(goHome);return;}renderAll();show('start');}
 
 /* ---------- story scenes ---------- */
@@ -628,7 +632,8 @@ function renderReport(){
   const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,14);
   const due=rqDue(99).length;
   $('repBody').innerHTML=`
-   <div class="kv">Total stars: ${SAVE.stars} · Rank: ${rankName()} · Math level ${SAVE.lv.math} · Word level ${SAVE.lv.word}</div>
+   <div class="kv">Total stars: ${SAVE.stars} · Rank: ${rankName()} · Math level ${SAVE.lv.math} · Word level ${SAVE.lv.word} · Reading Lab level ${SAVE.lv.lab||1}</div>
+   ${SAVE.eye&&SAVE.eye.d===todayStr()?`<div class="kv">Glasses practice in the game today: about ${SAVE.eye.m} min</div>`:''}
    <div class="kv">Daily streak: ${streakNow()} days (best ${SAVE.daily.best}) · Review queue: ${SAVE.rq.length} (${due} due now)${SAVE.pet?` · Sidekick: ${escapeHTML(SAVE.pet.name)}`:''}</div>
    <h3 style="margin:12px 0 4px">Needs practice</h3>
    ${top.length?`<div class="chips">${top.map(([l,c])=>`<span class="chip">${escapeHTML(l)}${c>1?` <b>×${c}</b>`:''}</span>`).join('')}</div>
@@ -649,7 +654,8 @@ function renderPlayers(){
   if($('plAdd'))$('plAdd').onclick=()=>{addProfile('New player');renderPlayers();};
 }
 function renderSettings(){
-  $('setVoice').value=AUDIO.voiceMode;$('setMusic').checked=AUDIO.musicOn;$('setReadCh').checked=FAM.set.readChoices!==false;$('setBreak').value=String(FAM.set.breakMin||0);fillVoicePicker();
+  $('setVoice').value=AUDIO.voiceMode;$('setMusic').checked=AUDIO.musicOn;$('setReadCh').checked=FAM.set.readChoices!==false;$('setEasy').checked=!!FAM.set.easyRead;$('setCalm').checked=!!FAM.set.calm;$('setBig').checked=!!FAM.set.bigText;
+  $('setGlass').checked=!!GL().enabled;$('glassStatus').textContent=GL().cal?`Set up: training the ${GL().eye==='both'?'left and right eyes, taking turns':GL().eye+' eye'} · ${GL().mins} min sessions · other eye at ${GL().strong}%`:'Not set up yet.';$('setBreak').value=String(FAM.set.breakMin||0);fillVoicePicker();
   $('devVoiceRow').style.display=AUDIO.voiceMode==='device'?'':'none';
   $('persistNote').textContent=canPersist?'Progress is saved in this browser on this device.':'Progress cannot be saved in this preview window. On the published site it saves automatically.';
   $('backupOut').textContent='';$('restoreMsg').textContent='';$('resetBtn').textContent='Reset all progress';
@@ -678,6 +684,13 @@ function fillVoicePicker(){const sel=$('voicePick');if(!sel)return;
   sel.innerHTML=voiceList.length?voiceList.map((v,i)=>`<option value="${i}" ${v===voice?'selected':''}>${isMale(v)?'Hero: ':''}${v.name.replace(/Microsoft |Online \(Natural\)| - English \(.*\)/g,'').trim()} (${v.lang})</option>`).join(''):'<option>No device voices found</option>';}
 $('setVoice').onchange=e=>{AUDIO.voiceMode=e.target.value;FAM.set.voice=AUDIO.voiceMode;persist();renderSettings();say(['intro'],'Never fear, hero! Let\'s save the day!');};
 $('voicePick').onchange=e=>{voice=voiceList[+e.target.value];userPickedVoice=true;deviceSay('Never fear, hero! Let\'s save the day!');};
+$('setEasy').onchange=e=>{FAM.set.easyRead=e.target.checked;persist();applyReadingSupports();};
+$('setCalm').onchange=e=>{FAM.set.calm=e.target.checked;persist();applyReadingSupports();};
+$('setBig').onchange=e=>{FAM.set.bigText=e.target.checked;persist();applyReadingSupports();};
+$('setGlass').onchange=e=>{if(e.target.checked&&!GL().cal){e.target.checked=false;openEyeSetup();return;}GL().enabled=e.target.checked;if(!e.target.checked)stopGlasses(false);persist();renderGlassChip();renderSettings();};
+$('glassSetup').onclick=openEyeSetup;$('eyeNext').onclick=eyeNext;$('eyeBack').onclick=()=>{if(eyeStep>0){eyeStep--;renderEyeStep();}};
+$('glassChip').onclick=()=>{if(glassOn)stopGlasses(false);else startGlasses();};
+$('loadWeek').onclick=()=>{$('spellIn').value=WEEK_LISTS[0].words.join('\n');$('listMsg').textContent='Loaded. Tap Save words to use this list.';};
 $('setReadCh').onchange=e=>{FAM.set.readChoices=e.target.checked;persist();};
 $('setMusic').onchange=e=>{AUDIO.musicOn=e.target.checked;FAM.set.music=AUDIO.musicOn;persist();Music.refresh();renderTop();};
 $('setBreak').onchange=e=>{FAM.set.breakMin=+e.target.value;persist();};
@@ -703,8 +716,8 @@ $('soundCheckBtn').onclick=soundCheck;$('parentBtn').onclick=openGate;
 $('playerChip').onclick=openProfiles;$('tpBtn').onclick=openTwoP;$('storyBtn').onclick=openStoryLog;
 $('musicBtn').onclick=()=>{AUDIO.musicOn=!AUDIO.musicOn;FAM.set.music=AUDIO.musicOn;persist();unlockAudio();Music.refresh();renderTop();};
 $('soundBtn').onclick=()=>{AUDIO.soundOn=!AUDIO.soundOn;if(!AUDIO.soundOn)stopVoice();updateSoundBtn();if(AUDIO.soundOn)speakCurrent();};
-$('speakBtn').onclick=()=>{if(current&&current.type==='read')readAll();else speakCurrent();};
-function applySettings(){AUDIO.voiceMode=FAM.set.voice||'hero';AUDIO.musicOn=FAM.set.music!==false;Music.refresh();}
+$('speakBtn').onclick=()=>{if(current&&current.type==='lread')playLine(lineIdx);else if(current&&current.type==='read')readAll();else speakCurrent();};
+function applySettings(){AUDIO.voiceMode=FAM.set.voice||'hero';AUDIO.musicOn=FAM.set.music!==false;Music.refresh();applyReadingSupports();renderGlassChip();}
 function renderAll(){renderTop();renderDaily();renderPet();renderHeroes();renderWorlds();renderModes();}
 
 /* ---------- install as an app ---------- */

@@ -34,6 +34,9 @@ function villainSVG(v,w,mega){
   if(w==='water'){
     head=`<g stroke="#ff8c00" stroke-width="5" stroke-linecap="round"><path d="M75 4v12M45 14l7 9M105 14l-7 9M30 40h10M110 40h10"/></g>`;
     chest=`<path d="M75 94c-8 10-10 14-10 18a10 10 0 0 0 20 0c0-4-2-8-10-18z" fill="#2a9df4" stroke="#14142b" stroke-width="2"/><path d="M62 96 88 122" stroke="#e63946" stroke-width="5" stroke-linecap="round"/>`;
+  } else if(w==='lab'){
+    head=`<g fill="#14142b"><rect x="38" y="30" width="10" height="26" rx="5"/><rect x="102" y="30" width="10" height="26" rx="5"/></g><path d="M43 32q32-34 64 0" fill="none" stroke="#14142b" stroke-width="5"/>`;
+    chest=`<path d="M62 106h26" stroke="#ffd23f" stroke-width="4"/><path d="M64 102v8M70 102v8M76 102v8M82 102v8" stroke="#ffd23f" stroke-width="2"/>`;
   } else if(w==='word'){
     head=`<path d="M48 30l8-16 8 14 11-18 11 18 8-14 8 16" fill="#ffd23f" stroke="#14142b" stroke-width="3"/>`;
     chest=`<text x="75" y="114" text-anchor="middle" font-family="Bangers" font-size="22" fill="#ffd23f" stroke="#14142b" stroke-width="1">?!</text>`;

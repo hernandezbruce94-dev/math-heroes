@@ -1,10 +1,40 @@
 # Math Heroes: Save the City
 
-A free, superhero-themed learning game for first graders that runs in any web browser. It covers math, reading, spelling, and the water cycle.
+A free, superhero-themed learning game for early readers and first graders that runs in any web browser. It covers math, reading, phonics, spelling, and the water cycle.
 
 **Play it now:** https://superhero-math.pplx.app
 
 Villains are attacking. Kids pick a hero, answer questions, and every right answer fires a power blast at the villain. Win a mission to save the day, earn stars, unlock hero gear, and grow a sidekick.
+
+## What's new in version 5: Reading Lab and glasses mode
+
+### Reading Lab (a new world, villain: The Mumbler)
+Built around decoding, encoding, phonemic awareness, and syllable patterns:
+
+- **Sound Boxes**: count the sounds in a word (phoneme segmenting)
+- **Read & Find**: read a printed word and tap its picture, with tap-a-letter clues (letter name + keyword)
+- **Blend Blasters**: two- and three-letter blends (bl, st, scr, spl, str, squ, thr, shr) and digraphs
+- **Alien Words**: made-up words for real decoding practice
+- **Silent Letter Spy**: kn, wr, gn, mb
+- **Syllable Split**: clap syllables and choose where a word splits (dis | play)
+- **Flip Fix**: b/d/p/q and letter/number reversal practice, with the "bed" trick
+- **Read With Me**: short decodable stories shown one line at a time with a line reader that lights up each word as it's read, then "who" and "what" questions
+- **Lab Mix** and a Mega Boss; the Daily Mission now includes Reading Lab practice
+- Grown-ups can load a school spelling list (three-letter blends and silent letters) in one tap
+
+### Reading help settings
+- Easy-read letters (Lexend font with extra letter and word spacing)
+- Bigger text
+- Calm mode: no screen shaking or flashing and fewer sparkles
+
+### Red/green glasses mode (optional)
+For kids who do vision training with red/green glasses (red lens over the right eye, green over the left):
+
+- A setup wizard tunes the red and green so each one disappears through its matching lens, then checks each eye
+- The eye being trained sees the words and answers in full-strength ink; the other eye sees lighter ink, so both eyes work while reading
+- "Team up" style splits each word's letters between the two eyes
+- Session timer (10–30 minutes) with a "take your glasses off" reminder, and minutes shown in the progress report
+- This is extra practice inside the game. It is not a medical device and does not replace a prescribed vision program. Check with an eye doctor before adding glasses time.
 
 ## What's new in version 4.1
 
@@ -95,11 +125,13 @@ When opened from `localhost`, the game uses the sync server at `http://localhost
 | Path | What it is |
 |---|---|
 | `index.html`, `css/styles.css` | Page layout and styles |
-| `js/data.js`, `js/data2.js` | Missions, words, stories, scenes, pets |
+| `js/data.js`, `js/data2.js`, `js/data3.js` | Missions, words, stories, scenes, pets, Reading Lab word lists |
 | `js/problems.js` | Question generators |
 | `js/game.js` | Game flow, screens, grown-up area |
 | `js/store.js` | Saving, profiles, spaced review, sync client |
 | `js/trace.js` | Letter and number tracing |
+| `js/assist.js` | Read-aloud answer choices and Need help examples |
+| `js/lab.js` | Reading Lab questions, line reader, reading help, glasses mode |
 | `js/audio.js`, `js/clips.js`, `audio/` | Voice clips, music, sound effects |
 | `js/art.js`, `img/`, `icons/` | Hero, villain, and pet art; backgrounds and comics |
 | `sw.js`, `manifest.webmanifest` | Offline support and app install |
