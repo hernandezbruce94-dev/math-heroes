@@ -43,6 +43,7 @@
     <p class="parent" id="soundMsg">Tap "Test sound" to make sure you can hear the hero voice.</p>
 
     <div class="panel dailybox" id="dailyBox"></div>
+    <div class="panel dailybox testbox" id="testBox" style="display:none"></div>
     <div class="panel petbox" id="petBox"></div>
 
     <div class="panel">
@@ -77,9 +78,11 @@
       <span>
         <button class="icon-btn" id="soundBtn">Sound: On</button>
         <button class="icon-btn" id="speakBtn">Read to me</button>
+        <button class="icon-btn" id="toolsBtn" style="display:none">Tools</button>
         <button class="icon-btn" id="quitBtn">Home</button>
       </span>
     </div>
+    <div class="tokens" id="tokens" aria-label="Mission progress"></div>
     <div class="combo" id="combo"><span>Power</span><div class="bar"><div id="comboBar"></div></div><span class="lbl" id="comboLbl">Get 3 in a row</span></div>
     <div class="arena" id="arena">
       <div class="fighter hero" id="heroBox"><div class="petslot" id="petSlot"></div><div class="body" id="heroSvg"></div><div class="name" id="heroName">Hero</div><div class="hp"><div id="heroHp" style="width:100%"></div></div></div>
@@ -101,6 +104,7 @@
       <div id="winHero"></div>
       <div class="starrow" id="winStars"></div>
       <p id="winText"></p>
+      <div id="rewardWon"></div>
       <div id="unlocks"></div>
       <div class="badges" id="badges"></div>
       <div class="learned" id="learned"></div>
@@ -210,6 +214,18 @@
     <p style="font-weight:900;font-size:20px">Glasses time is done. You can take your glasses off now.</p>
     <div class="btnrow" style="justify-content:center"><button class="btn" data-close="glassDoneModal">OK</button></div></div>
 </div>
+<!-- MISSION PLAN -->
+<div class="modal" id="planModal" role="dialog" aria-modal="true" aria-label="Mission plan">
+  <div class="panel eyepanel" style="text-align:center"><div class="sc-title">Mission plan</div><div id="planBody"></div>
+    <div class="btnrow" style="justify-content:center"><button class="big-btn" id="planGo">GO!</button></div></div>
+</div>
+<!-- MATH TOOLS -->
+<div class="modal" id="toolsModal" role="dialog" aria-modal="true" aria-label="Math tools">
+  <div class="panel toolpanel"><div class="sc-title">Hero tools</div>
+    <div class="tabs" id="toolTabs"><button data-tool="line">Number line</button><button data-tool="chart">120 chart</button><button data-tool="blocks">Blocks</button><button data-tool="coins">Coins</button><button data-tool="board">Whiteboard</button></div>
+    <div id="toolBody"></div>
+    <div class="btnrow" style="justify-content:center"><button class="btn" data-close="toolsModal">Back to my question</button></div></div>
+</div>
 <!-- HELP -->
 <div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="hpHead">
   <div class="panel helppanel">
@@ -237,6 +253,8 @@
     <div class="tabs" id="ptabs" style="margin-top:12px">
       <button data-tab="list" class="on">Spelling list</button>
       <button data-tab="report">Progress report</button>
+      <button data-tab="goals">Goals</button>
+      <button data-tab="tests">Tests</button>
       <button data-tab="players">Players</button>
       <button data-tab="settings">Settings &amp; backup</button>
     </div>
@@ -248,6 +266,8 @@
       <p class="note" id="listMsg"></p>
     </div>
     <div class="ptab" id="pt-report" style="display:none"><div id="repBody"></div></div>
+    <div class="ptab" id="pt-goals" style="display:none"><div id="goalBody"></div></div>
+    <div class="ptab" id="pt-tests" style="display:none"><div id="testBody"></div></div>
     <div class="ptab" id="pt-players" style="display:none"><p class="note">Each player has their own hero, stars, levels, spelling list, sidekick, and report. Switch players with the button at the top of the start screen.</p><div id="plBody"></div></div>
     <div class="ptab" id="pt-settings" style="display:none">
       <label class="field" for="setVoice">Voice</label>
@@ -255,6 +275,14 @@
       <div id="devVoiceRow"><label class="field" for="voicePick">Device voice</label><select class="inp" id="voicePick"></select></div>
       <label class="field"><input type="checkbox" id="setReadCh"> Read the answer choices out loud (each one lights up as it is read)</label>
       <label class="field"><input type="checkbox" id="setMusic"> Theme music</label>
+      <h3 style="margin:16px 0 4px">Staying on track</h3>
+      <label class="field"><input type="checkbox" id="setPlan"> Show a mission plan and token board (first questions, then a reward)</label>
+      <label class="field" for="setRewards">Rewards to pick from (one per line)</label>
+      <textarea id="setRewards" rows="4"></textarea>
+      <label class="field"><input type="checkbox" id="setNudge"> If no answer for a while, remind the player to press "Raise my hand"</label>
+      <label class="field" for="setNudgeSec">Remind after</label>
+      <select class="inp" id="setNudgeSec" style="max-width:220px"><option value="15">15 seconds</option><option value="20">20 seconds</option><option value="30">30 seconds</option><option value="45">45 seconds</option><option value="60">1 minute</option></select>
+      <label class="field"><input type="checkbox" id="setShort"> Short missions (5 questions instead of 10)</label>
       <h3 style="margin:16px 0 4px">Reading help</h3>
       <label class="field"><input type="checkbox" id="setEasy"> Easy-read letters (a clearer font with extra space between letters and words)</label>
       <label class="field"><input type="checkbox" id="setBig"> Bigger text</label>
@@ -295,6 +323,7 @@
 <script src="js/trace.js"></script>
 <script src="js/assist.js"></script>
 <script src="js/lab.js"></script>
+<script src="js/supports.js"></script>
 <script src="js/game.js"></script>
 </body>
 </html>

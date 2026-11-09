@@ -4,7 +4,7 @@
    No accounts; nothing is shared with anyone else. */
 const newProfile=(name='')=>({id:Math.random().toString(36).slice(2,9),kid:name,heroId:'bolt',custom:null,stars:0,xp:0,
   lv:{math:1,word:1,water:1,lab:1},ms:{},spell:[],ses:[],rq:[],daily:{days:[],streak:0,best:0},
-  pet:null,scenes:{},updated:Date.now()});
+  pet:null,scenes:{},sk:{},flu:[],ran:[],tests:[],updated:Date.now()});
 const DEFAULT_FAMILY=()=>{const p=newProfile();return{v:4,active:p.id,profiles:{[p.id]:p},
   set:{voice:'hero',music:true,breakMin:0},sync:null,updated:Date.now()};};
 let FAM=DEFAULT_FAMILY(), SAVE=FAM.profiles[FAM.active], canPersist=false, storeKind='none';
@@ -64,6 +64,13 @@ function cleanProfile(p,id){
   for(const k of Object.keys(p.scenes||{}).slice(0,40))if(/^[a-z]{1,10}:[a-z]{1,10}$/.test(k))b.scenes[k]=1;
   b.rd=(Array.isArray(p.rd)?p.rd:[]).map(x=>SAFE.num(x,0,99)).slice(0,50);
   if(p.eye&&typeof p.eye==='object'&&/^\d{4}-\d\d-\d\d$/.test(p.eye.d))b.eye={d:p.eye.d,m:SAFE.num(p.eye.m,0,600)};
+  const DATE=/^\d{4}-\d\d-\d\d$/;
+  if(p.sk&&typeof p.sk==='object')for(const k of Object.keys(p.sk).slice(0,20)){if(!/^(snd|dec|aln|bln|sil|syl|enc|lsnd|flp|spell|sight|comp|math|rgp)$/.test(k))continue;const o={};
+    for(const [m,v] of Object.entries(p.sk[k]||{}).slice(-24))if(/^\d{4}-\d\d$/.test(m)&&Array.isArray(v))o[m]=[SAFE.num(v[0],0,1e5),SAFE.num(v[1],0,1e5)];b.sk[k]=o;}
+  b.flu=(Array.isArray(p.flu)?p.flu:[]).slice(-60).filter(x=>x&&DATE.test(x.d)).map(x=>({d:x.d,i:SAFE.num(x.i,0,20),w:SAFE.num(x.w,0,400),a:SAFE.num(x.a,0,100)}));
+  b.ran=(Array.isArray(p.ran)?p.ran:[]).slice(-60).filter(x=>x&&DATE.test(x.d)).map(x=>({d:x.d,n:SAFE.num(x.n,0,300),e:SAFE.num(x.e,0,300)}));
+  b.tests=(Array.isArray(p.tests)?p.tests:[]).slice(-10).filter(x=>x&&DATE.test(x.d)).map(x=>({id:SAFE.key(x.id,/^[a-z0-9]{1,12}$/)||Math.random().toString(36).slice(2,9),n:SAFE.str(x.n,30)||'Test',d:x.d,
+    k:SAFE.key(x.k,/^(spelling|math|word|lab|water)$/)||'spelling',p:(Array.isArray(x.p)?x.p:[]).filter(y=>typeof y==='string'&&DATE.test(y)).slice(-60)}));
   b.updated=SAFE.num(p.updated,0,1e13);
   return b;
 }
@@ -71,7 +78,9 @@ function cleanGlasses(g){g=g&&typeof g==='object'?g:{};return{enabled:!!g.enable
   strong:SAFE.num(g.strong||50,15,100),mins:[10,15,20,30].includes(+g.mins)?+g.mins:15,red:SAFE.num(g.red,0,6),green:SAFE.num(g.green,0,6)};}
 function normalize(f){
   const set=f.set||{};
-  f.set={voice:SAFE.key(set.voice,/^(hero|device)$/)||'hero',music:set.music!==false,readChoices:set.readChoices!==false,easyRead:!!set.easyRead,calm:!!set.calm,bigText:!!set.bigText,glasses:cleanGlasses(set.glasses),breakMin:[0,15,20,30].includes(+set.breakMin)?+set.breakMin:0};
+  f.set={voice:SAFE.key(set.voice,/^(hero|device)$/)||'hero',music:set.music!==false,readChoices:set.readChoices!==false,easyRead:!!set.easyRead,plan:set.plan!==false,nudge:set.nudge!==false,nudgeSec:[15,20,30,45,60].includes(+set.nudgeSec)?+set.nudgeSec:20,short:!!set.short,
+    rewards:(Array.isArray(set.rewards)?set.rewards:[]).map(x=>SAFE.str(x,30)).filter(Boolean).slice(0,8),
+    goal:{pct:[70,75,80,85,90].includes(+(set.goal||{}).pct)?+set.goal.pct:80,d:set.goal&&/^\d{4}-\d\d-\d\d$/.test(set.goal.d)?set.goal.d:''},calm:!!set.calm,bigText:!!set.bigText,glasses:cleanGlasses(set.glasses),breakMin:[0,15,20,30].includes(+set.breakMin)?+set.breakMin:0};
   const profs={};
   for(const [id,p] of Object.entries(f.profiles||{}).slice(0,5)){const cid=SAFE.key(id,/^[a-z0-9]{1,12}$/);if(cid)profs[cid]=cleanProfile(p,cid);}
   if(!Object.keys(profs).length){const p=newProfile();profs[p.id]=p;}
@@ -129,7 +138,7 @@ function recordSession(rec){SAVE.ses.push(rec);if(SAVE.ses.length>15)SAVE.ses.sh
 
 /* ---- spaced review: missed problems come back after 1, 3, then 7 days ---- */
 const DAY=86400000, todayStr=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
-const REVIEWABLE=s=>s&&!['say','empty','read','rq','wstory','lrd','lq'].includes(s.t);
+const REVIEWABLE=s=>s&&!['say','empty','read','rq','wstory','lrd','lq','flu','ran','seq'].includes(s.t);
 function rqMiss(spec,label){
   if(!REVIEWABLE(spec)||!label)return;
   let it=SAVE.rq.find(x=>x.l===label);

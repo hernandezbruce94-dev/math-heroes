@@ -140,6 +140,7 @@ function startDaily(){
   seen=[];
   for(const p of plan){if(list.length>=8)break;
     if(p==='water')list.push(GEN[pick(['wvocab','wcycle','wfacts'])]());else list.push(GEN[p](p==='mix'?L.math:p==='labmix'?(L.lab||1):L.word));}
+  const tt=upcomingTests().find(t=>daysUntil(t.d)<=7);if(tt){list.splice(0,3,...testQuestions(tt,3));}
   startGame({list:shuffle(list),kind:'daily',name:'Daily Mission'});
 }
 function startGame(opts={}){
@@ -147,17 +148,21 @@ function startGame(opts={}){
   let list=opts.list||null,kind=opts.kind||null;
   if(!list&&mode.id==='read'){const unread=READS.map((r,i)=>i).filter(i=>!(SAVE.rd||[]).includes(i));const i=unread.length?pick(unread):rnd(0,READS.length-1);
     list=[{t:'read',i},{t:'rq',i,j:0},{t:'rq',i,j:1},{t:'rq',i,j:2}];kind='read';}
+  if(!list&&(mode.id==='flu'||mode.id==='ran')){list=[mode.id==='flu'?{t:'flu',i:rnd(0,FLU.length-1)}:{t:'ran'}];kind='read';}
   if(!list&&mode.id==='lread'){const i=rnd(0,LSTORIES.length-1);list=[{t:'lrd',i},{t:'lq',i,j:0},{t:'lq',i,j:1}];kind='read';}
   checkGlassTime();
   const isBoss=mode.id==='boss'&&!list;
   // story scene before the first mission or the boss
   if(!opts.skipScene&&!list){const at=isBoss?'boss':'intro';if(!SAVE.scenes[world+':'+at]){playScene(world,at,()=>startGame(Object.assign({},opts,{skipScene:true})));return;}}
+  if(!opts.planned&&FAM.set.plan!==false&&!(kind==='read'&&['flu','ran'].includes(mode.id))){showPlan(()=>startGame(Object.assign({},opts,{list,kind,skipScene:true,planned:true})));return;}
   const w=list?worldOfSpec(list[0]):world;
-  const total=list?list.length:isBoss?12:mode.id==='wstory'||mode.id==='wsay'?5:mode.id==='mylist'?Math.min(10,Math.max(4,SAVE.spell.length*2)):10;
+  const total=list?list.length:isBoss?12:mode.id==='wstory'||mode.id==='wsay'?5:mode.id==='mylist'?Math.min(missionLength(),Math.max(4,SAVE.spell.length*2)):missionLength();
   G={world:w,homeWorld:world,mode:list?{id:kind||'review',name:opts.name||(kind==='read'?'Hero Stories':'Review Mission')}:mode,list,kind,isBoss,mixed:!!list&&kind!=='read',
      total,q:0,stars:0,first:0,tries:0,streak:0,best:0,lvl:SAVE.lv[w]||1,lvStreak:0,lvMiss:0,missed:[],learned:[],busy:false,hp:total,started:Date.now(),
      tp:TP.on?{turn:0,stars:[0,0],first:[0,0]}:null};
-  if(kind==='read'&&(mode.id==='read'||mode.id==='lread'))G.mode=mode;
+  if(kind==='read'&&['read','lread','flu','ran'].includes(mode.id))G.mode=mode;
+  G.reward=opts.planned?planReward:null;
+  $('toolsBtn').style.display=(w==='math'||G.mixed)?'':'none';
   seen=[];setSuper(false);
   const v=VILLAINS[w],h=currentHero();
   document.documentElement.style.setProperty('--hero',h.blast.startsWith('#')?h.blast:'#c77dff');
@@ -174,7 +179,7 @@ function startGame(opts={}){
   setTimeout(()=>taunt(pick(VILLAINS[w].taunts)),400);
 }
 function setVillain(w,mega){const v=VILLAINS[w];$('villainSvg').innerHTML=villainSVG(v,w,mega);$('villainName').textContent=mega?'Mega '+v.name.replace(/^The /,''):v.name;setWorldBg(w);}
-function updateHud(){
+function updateHud(){renderTokens();
   $('progress').textContent=`Round ${Math.min(G.q+1,G.total)} of ${G.total}`;
   $('starCount').textContent=G.tp?`${TP.names[0]} ★${G.tp.stars[0]} · ${TP.names[1]} ★${G.tp.stars[1]}`:'★ '+G.stars;
   const showLv=!(G.world==='water'||G.list||G.isBoss);
@@ -210,12 +215,13 @@ function nextQ(first){
   else if(current.type==='read'){wireRead();}
   else if(current.type==='lread'){wireLread();}
   else if(current.type==='empty'){$('qbody').innerHTML=`<div class="prompt">No spelling words yet</div><p style="font-weight:800;font-size:20px;margin:10px 0">Ask a grown-up to tap <b>Grown-ups</b> on the start screen and add this week's spelling words.</p><button class="btn blue" onclick="goHome()">Back to start</button>`;say(current.seq,current.text);return;}
-  wireChunks();glassesForQuestion();
-  if(readsChoicesOK(current)||hasHelp(current)){const row=document.createElement('div');row.className='helprow';
-    row.innerHTML=(readsChoicesOK(current)?'<button class="sm-btn" data-hearch>🔊 Hear the answers</button>':'')+(hasHelp(current)?'<button class="sm-btn helpbtn" data-help>Need help?</button>':'');
+  wireChunks();wireIep();glassesForQuestion();armNudge();
+  const canHand=canRaiseHand(current);
+  if(readsChoicesOK(current)||canHand){const row=document.createElement('div');row.className='helprow';
+    row.innerHTML=(readsChoicesOK(current)?'<button class="sm-btn" data-hearch>🔊 Hear the answers</button>':'')+(canHand?'<button class="sm-btn helpbtn handbtn" data-help aria-label="Raise my hand for help">✋ Raise my hand</button>':'');
     const ansBox=$('qbody').querySelector('.answers');if(ansBox)ansBox.before(row);else $('qbody').appendChild(row);
     row.querySelectorAll('[data-hearch]').forEach(b=>b.onclick=()=>{stopChoices();readChoices();});
-    row.querySelectorAll('[data-help]').forEach(b=>b.onclick=openHelp);}
+    row.querySelectorAll('[data-help]').forEach(b=>b.onclick=raiseHand);}
   $('qbody').querySelectorAll('[data-hear]').forEach(b=>b.onclick=()=>speakCurrent());
   $('qbody').querySelectorAll('[data-peek]').forEach(b=>b.onclick=()=>{$('peekWord').textContent=current.ans;b.disabled=true;});
   let delay=bossRound&&!first?2000:first?350:250;
@@ -237,7 +243,7 @@ function renderChoices(){
   current.choices.forEach(c=>{
     const b=document.createElement('button');
     b.className='ans'+(lay.includes('long')?' long':lay.includes('pic')?' pic':lay.includes('coin')?' coinbtn':lay.includes('txt')?' txt':'');
-    if(c.html)b.innerHTML=c.html;else b.textContent=c.v;b.setAttribute('aria-label',String(c.v));
+    if(c.html)b.innerHTML=c.html;else b.textContent=c.v;b.setAttribute('aria-label',String(c.v));b.dataset.v=String(c.v);
     b.onclick=()=>answer(c.v,b);box.appendChild(b);
   });
   if(lay.includes('two')&&!lay.includes('long'))box.querySelectorAll('.ans').forEach(b=>b.style.fontSize='72px');
@@ -284,7 +290,7 @@ function adapt(firstTry){
   return null;
 }
 function correct(opts={}){
-  G.busy=true;const firstTry=G.tries===0;
+  G.busy=true;const firstTry=G.tries===0;clearTimeout(idleT1);clearTimeout(idleT2);if(isP1())logSkill(current.spec,firstTry);
   if(firstTry){G.streak++;G.best=Math.max(G.best,G.streak);G.first++;const add=superMode?2:1;G.stars+=add;
     if(G.tp){G.tp.stars[G.tp.turn]+=add;G.tp.first[G.tp.turn]++;}
     if(isP1()){SAVE.xp+=superMode?10:5;rqRight(current.label);}}
@@ -473,6 +479,7 @@ function stopMic(){if(rec){const r=rec;rec=null;try{r.stop()}catch(e){}}const m=
 
 /* ---------- win ---------- */
 function winGame(){
+  markTestPractice();clearTimeout(idleT1);clearTimeout(idleT2);
   stopMic();show('win');sfx('win');setSuper(false);Music.set('normal');
   sessionPlay+=Date.now()-G.started;
   if(FAM.set.breakMin>0&&sessionPlay>=FAM.set.breakMin*60000)breakDue=true;
@@ -503,6 +510,7 @@ function winGame(){
   const vName=G.isBoss?'Mega '+v.name.replace(/^The /,''):G.mixed?'the villains':v.name;
   if(G.tp){const [a,b]=G.tp.stars;$('winText').innerHTML=`Team hero defeated ${vName}!<br>${escapeHTML(TP.names[0])}: ★${a} &nbsp; ${escapeHTML(TP.names[1])}: ★${b}`;seqs.unshift('team_win');}
   else $('winText').textContent=`${h.name} defeated ${vName}! ${SAVE.kid?SAVE.kid+', you':'You'} got ${G.first} of ${G.total} on the first try and earned ${G.stars} stars.`;
+  $('rewardWon').innerHTML=G.reward?`<div class="rewardwon">You earned: <b>${escapeHTML(G.reward)}</b>!</div>`:'';
   const badges=[];
   if(G.first===G.total)badges.push('Perfect Hero');if(G.best>=3)badges.push('Super Mode Unlocked');if(G.best>=5)badges.push(G.best+' in a row');
   if(G.isBoss)badges.push('Mega Boss Defeated');badges.push(G.mode.name+' Champion');badges.push('Rank: '+rankName());
@@ -530,7 +538,7 @@ function confetti(){
     c.style.animationDuration=(2+Math.random()*2)+'s';c.style.animationDelay=Math.random()*.6+'s';document.body.appendChild(c);setTimeout(()=>c.remove(),5000);}
   for(let i=0;i<4;i++)setTimeout(()=>burst(rnd(100,FW-100),rnd(100,FH/2),pick(colors),50),i*350);
 }
-function goHome(){checkGlassTime();lineRun++;stopVoice();stopChoices();helpRun++;closeModal('helpModal');stopMic();Music.set('normal');if(G&&G.afterScene){const [sw,at]=G.afterScene;G.afterScene=null;playScene(sw,at,goHome);return;}
+function goHome(){checkGlassTime();clearInterval(fluT);clearInterval(ranT);clearTimeout(idleT1);clearTimeout(idleT2);lineRun++;stopVoice();stopChoices();helpRun++;closeModal('helpModal');stopMic();Music.set('normal');if(G&&G.afterScene){const [sw,at]=G.afterScene;G.afterScene=null;playScene(sw,at,goHome);return;}
   if(breakDue){startBreak(goHome);return;}renderAll();show('start');}
 
 /* ---------- story scenes ---------- */
@@ -620,6 +628,8 @@ function parentTab(tab){
   if(tab==='list')$('spellIn').value=SAVE.spell.join('\n');
   if(tab==='report')renderReport();
   if(tab==='players')renderPlayers();
+  if(tab==='goals')renderGoals();
+  if(tab==='tests')renderTests();
   if(tab==='settings')renderSettings();
 }
 $('saveList').onclick=()=>{
@@ -654,7 +664,7 @@ function renderPlayers(){
   if($('plAdd'))$('plAdd').onclick=()=>{addProfile('New player');renderPlayers();};
 }
 function renderSettings(){
-  $('setVoice').value=AUDIO.voiceMode;$('setMusic').checked=AUDIO.musicOn;$('setReadCh').checked=FAM.set.readChoices!==false;$('setEasy').checked=!!FAM.set.easyRead;$('setCalm').checked=!!FAM.set.calm;$('setBig').checked=!!FAM.set.bigText;
+  $('setVoice').value=AUDIO.voiceMode;$('setMusic').checked=AUDIO.musicOn;$('setReadCh').checked=FAM.set.readChoices!==false;$('setEasy').checked=!!FAM.set.easyRead;$('setPlan').checked=FAM.set.plan!==false;$('setNudge').checked=FAM.set.nudge!==false;$('setNudgeSec').value=String(FAM.set.nudgeSec||20);$('setShort').checked=!!FAM.set.short;$('setRewards').value=rewards().join('\n');$('setCalm').checked=!!FAM.set.calm;$('setBig').checked=!!FAM.set.bigText;
   $('setGlass').checked=!!GL().enabled;$('glassStatus').textContent=GL().cal?`Set up: training the ${GL().eye==='both'?'left and right eyes, taking turns':GL().eye+' eye'} · ${GL().mins} min sessions · other eye at ${GL().strong}%`:'Not set up yet.';$('setBreak').value=String(FAM.set.breakMin||0);fillVoicePicker();
   $('devVoiceRow').style.display=AUDIO.voiceMode==='device'?'':'none';
   $('persistNote').textContent=canPersist?'Progress is saved in this browser on this device.':'Progress cannot be saved in this preview window. On the published site it saves automatically.';
@@ -684,6 +694,12 @@ function fillVoicePicker(){const sel=$('voicePick');if(!sel)return;
   sel.innerHTML=voiceList.length?voiceList.map((v,i)=>`<option value="${i}" ${v===voice?'selected':''}>${isMale(v)?'Hero: ':''}${v.name.replace(/Microsoft |Online \(Natural\)| - English \(.*\)/g,'').trim()} (${v.lang})</option>`).join(''):'<option>No device voices found</option>';}
 $('setVoice').onchange=e=>{AUDIO.voiceMode=e.target.value;FAM.set.voice=AUDIO.voiceMode;persist();renderSettings();say(['intro'],'Never fear, hero! Let\'s save the day!');};
 $('voicePick').onchange=e=>{voice=voiceList[+e.target.value];userPickedVoice=true;deviceSay('Never fear, hero! Let\'s save the day!');};
+$('setPlan').onchange=e=>{FAM.set.plan=e.target.checked;persist();};
+$('setNudge').onchange=e=>{FAM.set.nudge=e.target.checked;persist();};
+$('setNudgeSec').onchange=e=>{FAM.set.nudgeSec=+e.target.value;persist();};
+$('setShort').onchange=e=>{FAM.set.short=e.target.checked;persist();renderModes();};
+$('setRewards').onchange=e=>{FAM.set.rewards=[...new Set(e.target.value.split('\n').map(x=>x.trim().replace(/[<>"'`&\\]/g,'').slice(0,30)).filter(Boolean))].slice(0,8);persist();};
+$('toolsBtn').onclick=openTools;document.querySelectorAll('#toolTabs button').forEach(b=>b.onclick=()=>{toolTab=b.dataset.tool;renderTool();});
 $('setEasy').onchange=e=>{FAM.set.easyRead=e.target.checked;persist();applyReadingSupports();};
 $('setCalm').onchange=e=>{FAM.set.calm=e.target.checked;persist();applyReadingSupports();};
 $('setBig').onchange=e=>{FAM.set.bigText=e.target.checked;persist();applyReadingSupports();};
@@ -718,7 +734,7 @@ $('musicBtn').onclick=()=>{AUDIO.musicOn=!AUDIO.musicOn;FAM.set.music=AUDIO.musi
 $('soundBtn').onclick=()=>{AUDIO.soundOn=!AUDIO.soundOn;if(!AUDIO.soundOn)stopVoice();updateSoundBtn();if(AUDIO.soundOn)speakCurrent();};
 $('speakBtn').onclick=()=>{if(current&&current.type==='lread')playLine(lineIdx);else if(current&&current.type==='read')readAll();else speakCurrent();};
 function applySettings(){AUDIO.voiceMode=FAM.set.voice||'hero';AUDIO.musicOn=FAM.set.music!==false;Music.refresh();applyReadingSupports();renderGlassChip();}
-function renderAll(){renderTop();renderDaily();renderPet();renderHeroes();renderWorlds();renderModes();}
+function renderAll(){renderTop();renderDaily();renderTestBox();renderPet();renderHeroes();renderWorlds();renderModes();}
 
 /* ---------- install as an app ---------- */
 let deferredInstall=null;
