@@ -215,7 +215,7 @@ function nextQ(first){
   else if(current.type==='read'){wireRead();}
   else if(current.type==='lread'){wireLread();}
   else if(current.type==='empty'){$('qbody').innerHTML=`<div class="prompt">No spelling words yet</div><p style="font-weight:800;font-size:20px;margin:10px 0">Ask a grown-up to tap <b>Grown-ups</b> on the start screen and add this week's spelling words.</p><button class="btn blue" onclick="goHome()">Back to start</button>`;say(current.seq,current.text);return;}
-  wireChunks();wireIep();glassesForQuestion();armNudge();
+  wireChunks();wireSupports();glassesForQuestion();armNudge();
   const canHand=canRaiseHand(current);
   if(readsChoicesOK(current)||canHand){const row=document.createElement('div');row.className='helprow';
     row.innerHTML=(readsChoicesOK(current)?'<button class="sm-btn" data-hearch>🔊 Hear the answers</button>':'')+(canHand?'<button class="sm-btn helpbtn handbtn" data-help aria-label="Raise my hand for help">✋ Raise my hand</button>':'');

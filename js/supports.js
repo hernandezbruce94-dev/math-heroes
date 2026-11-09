@@ -198,7 +198,7 @@ function wireRan(){let n=0,e=0,left=60,startAt=0,running=false;const L='abcdefgh
   $('ranStart').onclick=()=>{if(running)return;running=true;startAt=Date.now();stopVoice();$('ranStart').disabled=true;$('ranOk').disabled=$('ranNo').disabled=false;next();
     ranT=setInterval(()=>{if(!$('ranClock')){clearInterval(ranT);running=false;return;}left=60-Math.floor((Date.now()-startAt)/1000);$('ranClock').textContent=`0:${String(Math.max(0,left)).padStart(2,'0')}`;if(left<=0)end();},250);};
   $('ranOk').onclick=()=>{if(!running)return;n++;sfx('click');next();};$('ranNo').onclick=()=>{if(!running)return;e++;next();};}
-function wireIep(){
+function wireSupports(){
   if(!current)return;
   if(current.type==='enc')wireEnc();else if(current.type==='seq')wireSeq();else if(current.type==='flu')wireFlu();else if(current.type==='ran')wireRan();
   if(current.type==='trace'&&STROKES[current.ans]){const tb=$('traceBox');if(tb){const d=document.createElement('div');d.className='strokebox';

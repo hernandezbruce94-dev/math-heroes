@@ -99,13 +99,17 @@ class H(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(b)
     def body(self):
-        n = int(self.headers.get('Content-Length') or 0)
+        try:
+            n = int(self.headers.get('Content-Length') or 0)
+        except (TypeError, ValueError):
+            return None
         if n <= 0 or n > MAX_BODY:
             return None
         try:
-            return json.loads(self.rfile.read(n))
+            v = json.loads(self.rfile.read(n))
         except Exception:
             return None
+        return v if isinstance(v, dict) else None
     def route(self):
         p = self.path.split('?')[0].rstrip('/')
         m = re.match(r'^(?:/port/\d+)?/api/(health|sync)(?:/([^/]+))?$', p)
