@@ -6,6 +6,24 @@ A free, superhero-themed learning game for early readers and first graders that 
 
 Villains are attacking. Kids pick a hero, answer questions, and every right answer fires a power blast at the villain. Win a mission to save the day, earn stars, unlock hero gear, and grow a sidekick.
 
+## What's new in version 6: learning supports
+
+### Help while playing
+- **Raise my hand** button on every question. If no answer comes for a while (15 seconds to 1 minute, set by a grown-up), the hero voice reminds the player to press it. Pressing it plays a worked example, or reads the question again and removes one wrong answer.
+- **Mission plan and token board**: a picture plan (listen, answer, get stars) before each mission, a star for every answer, and a reward the player picks. Grown-ups can write their own rewards.
+- **Short missions** option (5 questions instead of 10).
+- **Hero tools** tray in Math City: number line with hops for counting on, 120 chart, base-ten blocks that trade 10 ones for a ten, coins and a whiteboard.
+- **Letter-formation guides**: animated stroke order with start dots on Trace missions.
+
+### New missions
+- **Trade Ten** (Math City): regrouping with base-ten blocks.
+- **Sound Spelling**, **Story Order** (first, next, last), **Who, What, Why** picture questions (Reading Lab).
+- **Fluency Check** (a 1-minute read scored by a grown-up, words correct per minute) and **Letter Speed** (letters named in 1 minute).
+
+### For grown-ups
+- **Goals** tab: set a target and date, monthly first-try accuracy by skill, fluency and letter-speed charts, and a monthly summary you can copy or share.
+- **Tests** tab: add a test date and the game spreads short practice across the days before it; upcoming tests add questions to the Daily Mission.
+
 ## What's new in version 5: Reading Lab and glasses mode
 
 ### Reading Lab (a new world, villain: The Mumbler)
@@ -132,6 +150,7 @@ When opened from `localhost`, the game uses the sync server at `http://localhost
 | `js/trace.js` | Letter and number tracing |
 | `js/assist.js` | Read-aloud answer choices and Need help examples |
 | `js/lab.js` | Reading Lab questions, line reader, reading help, glasses mode |
+| `js/supports.js` | Version 6 learning supports: Raise my hand, plan and tokens, tools, goals, tests, new missions |
 | `js/audio.js`, `js/clips.js`, `audio/` | Voice clips, music, sound effects |
 | `js/art.js`, `img/`, `icons/` | Hero, villain, and pet art; backgrounds and comics |
 | `sw.js`, `manifest.webmanifest` | Offline support and app install |
