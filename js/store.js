@@ -3,7 +3,7 @@
    Optional family sync code keeps devices in step through the game's own small server.
    No accounts; nothing is shared with anyone else. */
 const newProfile=(name='')=>({id:Math.random().toString(36).slice(2,9),kid:name,heroId:'bolt',custom:null,stars:0,xp:0,
-  lv:{math:1,word:1,water:1,lab:1},ms:{},spell:[],ses:[],rq:[],daily:{days:[],streak:0,best:0},
+  lv:{math:1,word:1,water:1,lab:1,market:1},ms:{},spell:[],ses:[],rq:[],daily:{days:[],streak:0,best:0},
   pet:null,scenes:{},sk:{},flu:[],ran:[],tests:[],updated:Date.now()});
 const DEFAULT_FAMILY=()=>{const p=newProfile();return{v:4,active:p.id,profiles:{[p.id]:p},
   set:{voice:'hero',music:true,breakMin:0},sync:null,updated:Date.now()};};
@@ -52,12 +52,12 @@ function cleanProfile(p,id){
     for(const k of ['suit','cape','mask','emblem','skin','hair','blast','blastColor']){const v=SAFE.color(c[k]);if(v)o[k]=v;}
     b.custom=Object.assign({suit:'#2a9df4',cape:'#e63946',mask:'#14142b',emblem:'bolt',skin:'#f6c9a0',hair:'#3b2314',blast:'normal'},o);}
   b.stars=SAFE.num(p.stars);b.xp=SAFE.num(p.xp);
-  for(const w of ['math','word','water','lab'])b.lv[w]=SAFE.num((p.lv||{})[w]||1,1,3);
+  for(const w of ['math','word','water','lab','market'])b.lv[w]=SAFE.num((p.lv||{})[w]||1,1,3);
   for(const [k,v] of Object.entries(p.ms||{}).slice(0,200))if(/^[a-z]{1,10}:[a-z0-9]{1,12}$/.test(k))b.ms[k]=SAFE.num(v,0,3);
   b.spell=(Array.isArray(p.spell)?p.spell:[]).filter(w=>typeof w==='string'&&/^[a-z' -]{1,20}$/i.test(w)).slice(0,40);
-  b.ses=(Array.isArray(p.ses)?p.ses:[]).slice(-15).filter(x=>x&&typeof x==='object').map(x=>({d:SAFE.str(x.d,20).replace(/[^0-9 :-]/g,''),w:SAFE.key(x.w,/^(math|word|water|lab)$/)||'math',
+  b.ses=(Array.isArray(p.ses)?p.ses:[]).slice(-15).filter(x=>x&&typeof x==='object').map(x=>({d:SAFE.str(x.d,20).replace(/[^0-9 :-]/g,''),w:SAFE.key(x.w,/^(math|word|water|lab|market)$/)||'math',
     m:SAFE.str(x.m,60),sc:SAFE.num(x.sc,0,100),n:SAFE.num(x.n,0,100),st:SAFE.num(x.st,0,1000),h:SAFE.num(x.h,0,100),
-    mi:(Array.isArray(x.mi)?x.mi:[]).slice(0,8).map(m=>({w:SAFE.key(m&&m.w,/^(math|word|water|lab)$/)||'math',s:cleanSpec(m&&m.s),l:SAFE.str(m&&m.l,60)}))}));
+    mi:(Array.isArray(x.mi)?x.mi:[]).slice(0,8).map(m=>({w:SAFE.key(m&&m.w,/^(math|word|water|lab|market)$/)||'math',s:cleanSpec(m&&m.s),l:SAFE.str(m&&m.l,60)}))}));
   b.rq=(Array.isArray(p.rq)?p.rq:[]).slice(-40).map(x=>x&&({s:cleanSpec(x.s),l:SAFE.str(x.l,60),due:SAFE.num(x.due,0,1e13),b:SAFE.num(x.b,0,3)})).filter(x=>x&&x.s);
   const d=p.daily||{};b.daily={days:(Array.isArray(d.days)?d.days:[]).filter(x=>typeof x==='string'&&/^\d{4}-\d\d-\d\d$/.test(x)).slice(-90),streak:SAFE.num(d.streak,0,9999),best:SAFE.num(d.best,0,9999)};
   if(p.pet&&typeof p.pet==='object'){const pid=SAFE.key(p.pet.id,/^[a-z]{1,12}$/);if(pid&&(typeof PETS==='undefined'||PETS.some(x=>x.id===pid)))b.pet={id:pid,name:SAFE.str(p.pet.name,14)||'Buddy',xp:SAFE.num(p.pet.xp)};}
@@ -65,12 +65,12 @@ function cleanProfile(p,id){
   b.rd=(Array.isArray(p.rd)?p.rd:[]).map(x=>SAFE.num(x,0,99)).slice(0,50);
   if(p.eye&&typeof p.eye==='object'&&/^\d{4}-\d\d-\d\d$/.test(p.eye.d))b.eye={d:p.eye.d,m:SAFE.num(p.eye.m,0,600)};
   const DATE=/^\d{4}-\d\d-\d\d$/;
-  if(p.sk&&typeof p.sk==='object')for(const k of Object.keys(p.sk).slice(0,20)){if(!/^(snd|dec|aln|bln|sil|syl|enc|lsnd|flp|spell|sight|comp|math|rgp)$/.test(k))continue;const o={};
+  if(p.sk&&typeof p.sk==='object')for(const k of Object.keys(p.sk).slice(0,20)){if(!/^(snd|dec|aln|bln|sil|syl|enc|lsnd|flp|spell|sight|comp|math|rgp|econ)$/.test(k))continue;const o={};
     for(const [m,v] of Object.entries(p.sk[k]||{}).slice(-24))if(/^\d{4}-\d\d$/.test(m)&&Array.isArray(v))o[m]=[SAFE.num(v[0],0,1e5),SAFE.num(v[1],0,1e5)];b.sk[k]=o;}
   b.flu=(Array.isArray(p.flu)?p.flu:[]).slice(-60).filter(x=>x&&DATE.test(x.d)).map(x=>({d:x.d,i:SAFE.num(x.i,0,20),w:SAFE.num(x.w,0,400),a:SAFE.num(x.a,0,100)}));
   b.ran=(Array.isArray(p.ran)?p.ran:[]).slice(-60).filter(x=>x&&DATE.test(x.d)).map(x=>({d:x.d,n:SAFE.num(x.n,0,300),e:SAFE.num(x.e,0,300)}));
   b.tests=(Array.isArray(p.tests)?p.tests:[]).slice(-10).filter(x=>x&&DATE.test(x.d)).map(x=>({id:SAFE.key(x.id,/^[a-z0-9]{1,12}$/)||Math.random().toString(36).slice(2,9),n:SAFE.str(x.n,30)||'Test',d:x.d,
-    k:SAFE.key(x.k,/^(spelling|math|word|lab|water)$/)||'spelling',p:(Array.isArray(x.p)?x.p:[]).filter(y=>typeof y==='string'&&DATE.test(y)).slice(-60)}));
+    k:SAFE.key(x.k,/^(spelling|math|word|lab|water|market)$/)||'spelling',p:(Array.isArray(x.p)?x.p:[]).filter(y=>typeof y==='string'&&DATE.test(y)).slice(-60)}));
   b.updated=SAFE.num(p.updated,0,1e13);
   return b;
 }
@@ -138,7 +138,7 @@ function recordSession(rec){SAVE.ses.push(rec);if(SAVE.ses.length>15)SAVE.ses.sh
 
 /* ---- spaced review: missed problems come back after 1, 3, then 7 days ---- */
 const DAY=86400000, todayStr=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
-const REVIEWABLE=s=>s&&!['say','empty','read','rq','wstory','lrd','lq','flu','ran','seq'].includes(s.t);
+const REVIEWABLE=s=>s&&!['say','empty','read','rq','wstory','lrd','lq','flu','ran','seq','ecard'].includes(s.t);
 function rqMiss(spec,label){
   if(!REVIEWABLE(spec)||!label)return;
   let it=SAVE.rq.find(x=>x.l===label);

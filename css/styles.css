@@ -33,7 +33,7 @@ main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:20px 16px
 .grid{display:grid;gap:14px}
 .heroes{grid-template-columns:repeat(4,1fr)}
 .modes{grid-template-columns:repeat(2,1fr)}
-.worlds{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.worlds{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
 @media(max-width:600px){.worlds{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.heroes{grid-template-columns:repeat(2,1fr)}.modes{grid-template-columns:1fr}}
 .pick{background:#fff;border:4px solid var(--ink);border-radius:18px;padding:12px 8px;cursor:pointer;text-align:center;
@@ -529,3 +529,29 @@ td.met{background:#d8f5e5}td.notyet{background:#fff3d6}
 .handbtn.pulse{animation:handwave .9s ease 5}
 @keyframes handwave{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-8deg) scale(1.12)}75%{transform:rotate(8deg) scale(1.12)}}
 .ptab{overflow-x:auto}table.rep .btn{padding:4px 8px;font-size:14px}
+/* ===== v7: Market Town ===== */
+.world.market{background:#d7263d}.world.market.sel{background:var(--yellow);color:var(--ink)}
+body.market-world{background:radial-gradient(circle at 50% 0%,#ff9f1c,#5f0f40 70%);--bgimg:url(../img/bg-market.webp)}
+.pic.ec{font-size:clamp(64px,14vw,96px);line-height:1.1;margin:4px 0}
+.ecwhy{background:#d8f5e5;border:3px solid var(--green);border-radius:12px;padding:8px 12px;font-weight:900;font-size:clamp(17px,3.6vw,21px);max-width:620px;margin:10px auto 0;color:var(--ink)}
+.ecfill{line-height:1.6}
+.ecblank{display:inline-block;min-width:4.5em;border-bottom:4px solid var(--ink);background:#fff7d6;border-radius:8px 8px 0 0;padding:0 8px;color:var(--purple);text-align:center}
+.ecblank.done{background:#d8f5e5;color:var(--green)}
+.ecterm{font-size:clamp(40px,9vw,64px)}
+.eccard{max-width:640px;margin:0 auto;text-align:center}
+.ecbig{font-size:clamp(80px,18vw,120px);line-height:1.1}
+.ecword{font-family:'Bangers';font-size:clamp(44px,10vw,68px);letter-spacing:2px;color:var(--purple)}
+.ecdef{font-weight:900;font-size:clamp(20px,4.4vw,27px);line-height:1.35;margin:6px auto;max-width:600px}
+.ecex{font-size:clamp(32px,7vw,44px);letter-spacing:6px;margin:4px 0}
+.ecmatch{display:grid;grid-template-columns:1fr 1.4fr;gap:12px;max-width:760px;margin:10px auto}
+.eccol{display:flex;flex-direction:column;gap:10px}
+.ecm{font:900 clamp(16px,3.4vw,20px)/1.25 'Nunito';color:var(--ink);background:#fff;border:4px solid var(--ink);border-radius:14px;padding:10px;cursor:pointer;box-shadow:4px 4px 0 var(--ink);text-align:left;min-height:64px;display:flex;align-items:center;gap:8px}
+.ecm .e{font-size:30px;flex:none}
+.ecw{text-transform:capitalize}
+.ecm.sel{background:var(--yellow);transform:translateY(-3px);box-shadow:4px 6px 0 var(--red)}
+.ecm.matched{box-shadow:none;opacity:.9;cursor:default}
+.ecm.matched::after{content:'✓';margin-left:auto;font-size:22px;color:var(--green)}
+.ecm.nope{animation:shake .3s;background:#ffd6d6}
+.ecm.peek{outline:4px dashed var(--blue)}
+@media(max-width:600px){.ecmatch{grid-template-columns:1fr 1.3fr;gap:8px}.ecm{font-size:15px;padding:8px;min-height:58px}.ecm .e{font-size:22px}}
+body.market-world .ans.txt{font-size:clamp(22px,5.2vw,34px);padding:14px 4px}

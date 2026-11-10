@@ -244,7 +244,7 @@ function helpExample(P){
   const same=e=>{const en=nums(e.s[0]);return en.length>0&&en.every(x=>qn.includes(x));};
   const i=list.length>1&&same(list[0])?1:0;
   const ex=list[i];
-  const extra=P.hintSeq&&P.hint&&(id==='water'||id==='waterfacts')?[{k:'hp_clue',t:'Here is a clue for this question.'},{k:P.hintSeq[0],t:P.hint}]:[];
+  const extra=P.hintSeq&&P.hint&&(id==='water'||id==='waterfacts'||id.startsWith('ec'))?[{k:'hp_clue',t:'Here is a clue for this question.'},{k:P.hintSeq[0],t:P.hint}]:[];
   return {id,v:ex.v(),steps:[...ex.s.map((t,j)=>({k:`hp_${id}_${i}_${j}`,t})),...extra]};
 }
 let helpRun=0;

@@ -1,3 +1,4 @@
+const NOLV=['water','market'];
 /* ================= GAME (v4) ================= */
 const $=id=>document.getElementById(id);
 let world='math', mode=MODES.math[0];
@@ -30,7 +31,7 @@ function burst(x,y,color,n=30){if(FAM&&FAM.set&&FAM.set.calm)n=Math.min(n,8);for
 
 /* ---------- start screen ---------- */
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===id));window.scrollTo(0,0)}
-function setWorldBg(w){document.body.classList.remove('math-world','word-world','water-world','lab-world');document.body.classList.add(w+'-world')}
+function setWorldBg(w){document.body.classList.remove('math-world','word-world','water-world','lab-world','market-world');document.body.classList.add(w+'-world')}
 function renderTop(){
   $('rankTag').textContent=`${rankName()} · ${SAVE.xp} XP`;
   $('starTag').textContent=`★ ${SAVE.stars}`;
@@ -64,7 +65,7 @@ function renderModes(){
     box.appendChild(b);
   });
   const done=SCENES[world].filter(s=>SAVE.scenes[world+':'+s.at]).length;
-  $('lvlTag').textContent=(world==='water'?'':`${{math:'Math',word:'Word',lab:'Reading'}[world]} level ${SAVE.lv[world]||1} · `)+`Story ${done}/4`;
+  $('lvlTag').textContent=(NOLV.includes(world)?'':`${{math:'Math',word:'Word',lab:'Reading'}[world]} level ${SAVE.lv[world]||1} · `)+`Story ${done}/4`;
 }
 document.querySelectorAll('.world').forEach(b=>b.onclick=()=>{world=b.dataset.world;mode=MODES[world][0];renderWorlds();renderModes();sfx('click');});
 
@@ -136,7 +137,7 @@ function openTwoP(){
 /* ---------- runs ---------- */
 function startDaily(){
   const list=rqDue(3).map(x=>x.s);
-  const L=SAVE.lv;const plan=['labmix','mix','wordmix','labmix','water','mix','labmix','wordmix'];
+  const L=SAVE.lv;const plan=['labmix','mix','wordmix','econmix','water','mix','labmix','econmix'];
   seen=[];
   for(const p of plan){if(list.length>=8)break;
     if(p==='water')list.push(GEN[pick(['wvocab','wcycle','wfacts'])]());else list.push(GEN[p](p==='mix'?L.math:p==='labmix'?(L.lab||1):L.word));}
@@ -148,6 +149,7 @@ function startGame(opts={}){
   let list=opts.list||null,kind=opts.kind||null;
   if(!list&&mode.id==='read'){const unread=READS.map((r,i)=>i).filter(i=>!(SAVE.rd||[]).includes(i));const i=unread.length?pick(unread):rnd(0,READS.length-1);
     list=[{t:'read',i},{t:'rq',i,j:0},{t:'rq',i,j:1},{t:'rq',i,j:2}];kind='read';}
+  if(!list&&mode.id==='elearn'){list=econLearnList();kind='read';}
   if(!list&&(mode.id==='flu'||mode.id==='ran')){list=[mode.id==='flu'?{t:'flu',i:rnd(0,FLU.length-1)}:{t:'ran'}];kind='read';}
   if(!list&&mode.id==='lread'){const i=rnd(0,LSTORIES.length-1);list=[{t:'lrd',i},{t:'lq',i,j:0},{t:'lq',i,j:1}];kind='read';}
   checkGlassTime();
@@ -160,7 +162,7 @@ function startGame(opts={}){
   G={world:w,homeWorld:world,mode:list?{id:kind||'review',name:opts.name||(kind==='read'?'Hero Stories':'Review Mission')}:mode,list,kind,isBoss,mixed:!!list&&kind!=='read',
      total,q:0,stars:0,first:0,tries:0,streak:0,best:0,lvl:SAVE.lv[w]||1,lvStreak:0,lvMiss:0,missed:[],learned:[],busy:false,hp:total,started:Date.now(),
      tp:TP.on?{turn:0,stars:[0,0],first:[0,0]}:null};
-  if(kind==='read'&&['read','lread','flu','ran'].includes(mode.id))G.mode=mode;
+  if(kind==='read'&&['read','lread','flu','ran','elearn'].includes(mode.id))G.mode=mode;
   G.reward=opts.planned?planReward:null;
   $('toolsBtn').style.display=(w==='math'||G.mixed)?'':'none';
   seen=[];setSuper(false);
@@ -182,7 +184,7 @@ function setVillain(w,mega){const v=VILLAINS[w];$('villainSvg').innerHTML=villai
 function updateHud(){renderTokens();
   $('progress').textContent=`Round ${Math.min(G.q+1,G.total)} of ${G.total}`;
   $('starCount').textContent=G.tp?`${TP.names[0]} ★${G.tp.stars[0]} · ${TP.names[1]} ★${G.tp.stars[1]}`:'★ '+G.stars;
-  const showLv=!(G.world==='water'||G.list||G.isBoss);
+  const showLv=!(NOLV.includes(G.world)||G.list||G.isBoss);
   $('lvlPill').textContent=G.isBoss?'BOSS':G.kind==='daily'?'Daily':G.kind==='read'?'Story':G.list?'Review':`Level ${G.tp&&G.tp.turn===1&&TP.hard?3:G.lvl}`;
   $('lvlPill').style.display=showLv||G.isBoss||G.list?'':'none';
 }
@@ -191,7 +193,7 @@ function genSpec(){
   let m=G.mode.id;if(G.isBoss)m=pick(BOSS_POOL[G.world]);
   const L=G.tp&&G.tp.turn===1&&TP.hard?3:G.lvl;
   let s=GEN[m](L,G.q);
-  if(G.q===G.total-1&&!G.isBoss&&G.world!=='water'&&L<3&&s.t!=='empty'){const s2=GEN[m](Math.min(3,L+1),G.q);if(s2)s=s2;}
+  if(G.q===G.total-1&&!G.isBoss&&!NOLV.includes(G.world)&&L<3&&s.t!=='empty'){const s2=GEN[m](Math.min(3,L+1),G.q);if(s2)s=s2;}
   return s;
 }
 function nextQ(first){
@@ -215,7 +217,7 @@ function nextQ(first){
   else if(current.type==='read'){wireRead();}
   else if(current.type==='lread'){wireLread();}
   else if(current.type==='empty'){$('qbody').innerHTML=`<div class="prompt">No spelling words yet</div><p style="font-weight:800;font-size:20px;margin:10px 0">Ask a grown-up to tap <b>Grown-ups</b> on the start screen and add this week's spelling words.</p><button class="btn blue" onclick="goHome()">Back to start</button>`;say(current.seq,current.text);return;}
-  wireChunks();wireSupports();glassesForQuestion();armNudge();
+  wireChunks();wireSupports();wireEcon();glassesForQuestion();armNudge();
   const canHand=canRaiseHand(current);
   if(readsChoicesOK(current)||canHand){const row=document.createElement('div');row.className='helprow';
     row.innerHTML=(readsChoicesOK(current)?'<button class="sm-btn" data-hearch>🔊 Hear the answers</button>':'')+(canHand?'<button class="sm-btn helpbtn handbtn" data-help aria-label="Raise my hand for help">✋ Raise my hand</button>':'');
@@ -284,7 +286,7 @@ function dotsHint(p){
   return d(a)+'<span class="op">+ ? =</span>'+d(b,'b');
 }
 function adapt(firstTry){
-  if(G.list||G.isBoss||G.world==='water'||!isP1())return null;
+  if(G.list||G.isBoss||NOLV.includes(G.world)||!isP1())return null;
   if(firstTry){G.lvStreak++;if(G.lvStreak>=2)G.lvMiss=0;if(G.lvStreak>=3&&G.lvl<3){G.lvl++;G.lvStreak=0;return 'up';}}
   else{G.lvStreak=0;G.lvMiss++;if(G.lvMiss>=2&&G.lvl>1){G.lvl--;G.lvMiss=0;return 'down';}}
   return null;
@@ -500,7 +502,7 @@ function winGame(){
     else seqs.push('daily_done');
   }
   SAVE.stars+=p1Stars;
-  if(!G.list||G.kind==='read'){const key=G.world+':'+G.mode.id;SAVE.ms[key]=Math.max(SAVE.ms[key]||0,s);if(G.world!=='water'&&!G.isBoss&&!G.list)SAVE.lv[G.world]=G.lvl;}
+  if(!G.list||G.kind==='read'){const key=G.world+':'+G.mode.id;SAVE.ms[key]=Math.max(SAVE.ms[key]||0,s);if(!NOLV.includes(G.world)&&!G.isBoss&&!G.list)SAVE.lv[G.world]=G.lvl;}
   // pet growth
   if(SAVE.pet){const px=SAVE.pet.xp,nx=px+p1Stars;SAVE.pet.xp=nx;
     const newT=PET_TRICKS.filter(t=>t[0]>px&&t[0]<=nx),grew=petStage(nx).i>petStage(px).i;
@@ -514,7 +516,7 @@ function winGame(){
   const badges=[];
   if(G.first===G.total)badges.push('Perfect Hero');if(G.best>=3)badges.push('Super Mode Unlocked');if(G.best>=5)badges.push(G.best+' in a row');
   if(G.isBoss)badges.push('Mega Boss Defeated');badges.push(G.mode.name+' Champion');badges.push('Rank: '+rankName());
-  if(G.world!=='water'&&!G.list&&!G.isBoss)badges.push('Level '+G.lvl);
+  if(!NOLV.includes(G.world)&&!G.list&&!G.isBoss)badges.push('Level '+G.lvl);
   $('badges').innerHTML=[...extra.map(x=>`<span class="badge hot">${escapeHTML(x)}</span>`),...badges.map(b=>`<span class="badge">${escapeHTML(b)}</span>`)].join('');
   $('learned').innerHTML=G.learned.length?'Words you practiced: '+G.learned.map(x=>`<b>${escapeHTML(x)}</b>`).join(''):'';
   $('explain').innerHTML=G.world==='water'&&!G.mixed?`<div class="explain"><h3>Explain the water cycle</h3>${CYCLE_SVG}<ol class="story">${STORY.map(x=>`<li>${x}</li>`).join('')}</ol>

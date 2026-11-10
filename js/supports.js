@@ -5,11 +5,12 @@
 /* ---------- skills tracked for the goal chart ---------- */
 const SKILLS={snd:'Counting sounds',dec:'Reading real words',aln:'Reading made-up words',bln:'Blends',sil:'Silent letters',syl:'Syllables',
   enc:'Spelling by sound',lsnd:'Letter sounds and rhymes',flp:'b/d and reversals',spell:'Spelling words',sight:'Sight words',comp:'Understanding stories',
-  math:'Math',rgp:'Regrouping'};
+  math:'Math',rgp:'Regrouping',econ:'Goods, services and resources'};
 const PHONICS=['snd','dec','aln','bln','sil','syl','enc','lsnd'];
 function skillOf(s){if(!s)return null;const t=s.t;
   if(['snd','dec','aln','bln','sil','syl','enc','flp','rgp'].includes(t))return t;
   if(['miss','begin','team','rhyme'].includes(t))return 'lsnd';
+  if(['egs','epc','eres','emake','efill','edef','ematch'].includes(t))return 'econ';
   if(t==='spell')return 'spell';if(t==='sight')return 'sight';
   if(['rq','lq','www','seq'].includes(t))return 'comp';
   if(['arith','story','time','coin','place','cmp','skip','nline','shape','measure','ffam'].includes(t))return 'math';
@@ -224,7 +225,7 @@ function renderTokens(){const el=$('tokens');if(!el||!G)return;if(FAM.set.plan==
   el.innerHTML=Array.from({length:G.total},(_,i)=>`<span class="tok${i<G.q?' on':''}">${i<G.q?'⭐':''}</span>`).join('')+(G.reward?`<span class="tokgoal">➜ ${escapeHTML(G.reward)}</span>`:'');}
 
 /* ---------- raise my hand + gentle nudges when a player gets stuck ---------- */
-const HAND_TYPES=['choice','spell','sentence','enc','seq','trace'];
+const HAND_TYPES=['choice','spell','sentence','enc','seq','trace','ematch'];
 function canRaiseHand(P){return !!P&&(hasHelp(P)||HAND_TYPES.includes(P.type));}
 function raiseHand(){
   if(!current||G.busy)return;clearTimeout(idleT1);clearTimeout(idleT2);
@@ -291,14 +292,14 @@ function wireBoard(){const cv=$('wb'),w=Math.min(560,$('toolBody').clientWidth||
   cv.onpointerup=cv.onpointercancel=()=>dn=false;$('wbClear').onclick=()=>{x.fillStyle='#fff';x.fillRect(0,0,w,h);};}
 
 /* ---------- test countdown + spread-out practice ---------- */
-const TEST_KINDS={spelling:'Spelling list',math:'Math',word:'Reading and words',lab:'Phonics',water:'Water cycle'};
+const TEST_KINDS={spelling:'Spelling list',math:'Math',word:'Reading and words',lab:'Phonics',water:'Water cycle',market:'Goods and services'};
 const daysUntil=d=>{const t=new Date(todayStr()+'T00:00:00'),x=new Date(d+'T00:00:00');return Math.round((x-t)/86400000);};
 function upcomingTests(){return (SAVE.tests||[]).filter(t=>daysUntil(t.d)>=0).sort((a,b)=>a.d<b.d?-1:1);}
 function testQuestions(t,n){const L=SAVE.lv;const out=[];
   for(let i=0;i<n;i++){
     if(t.k==='spelling')out.push(SAVE.spell.length?GEN.mylist?GEN.mylist(L.word,i):GEN.spell(L.word):GEN.spell(L.word));
     else if(t.k==='math')out.push(GEN.mix(L.math));else if(t.k==='word')out.push(GEN.wordmix(L.word));
-    else if(t.k==='lab')out.push(GEN.labmix(L.lab||1));else out.push(GEN[pick(['wvocab','wcycle','wfacts'])]());}
+    else if(t.k==='lab')out.push(GEN.labmix(L.lab||1));else if(t.k==='market')out.push(GEN.equiz(1,i+1));else out.push(GEN[pick(['wvocab','wcycle','wfacts'])]());}
   return out;}
 function renderTestBox(){const box=$('testBox');if(!box)return;const t=upcomingTests()[0];
   if(!t){box.style.display='none';return;}box.style.display='';const d=daysUntil(t.d);const did=(t.p||[]).includes(todayStr());

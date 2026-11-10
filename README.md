@@ -6,6 +6,19 @@ A free, superhero-themed learning game for early readers and first graders that 
 
 Villains are attacking. Kids pick a hero, answer questions, and every right answer fires a power blast at the villain. Win a mission to save the day, earn stars, unlock hero gear, and grow a sidekick.
 
+## What's new in version 7: Market Town (goods and services)
+
+A new world with the villain Professor Mix-Up, who mixed up all the goods and services. It covers first-grade economics words: good, service, consumer, producer, natural resource, capital resource and human resource.
+
+- **Learn the Words**: 7 picture word cards, read aloud
+- **Good or Service?** and **Producer or Consumer?** sorting
+- **Word Match**: a matching game (tap a word, then its meaning)
+- **Fill in the Blank** with a word bank
+- **What Does It Mean?**: word to meaning and meaning to word
+- **Resource Sort** (natural, capital or human) and **Make It!** (find the 3 resources used to make one thing)
+- **Quiz Practice** and a Mega Boss; after each right answer the game explains why
+- The Daily Mission includes Market Town questions, and "Goods and services" can be picked as a test topic in the Tests tab
+
 ## What's new in version 6: learning supports
 
 ### Help while playing
@@ -150,6 +163,7 @@ When opened from `localhost`, the game uses the sync server at `http://localhost
 | `js/trace.js` | Letter and number tracing |
 | `js/assist.js` | Read-aloud answer choices and Need help examples |
 | `js/lab.js` | Reading Lab questions, line reader, reading help, glasses mode |
+| `js/econ.js` | Version 7 Market Town world: goods, services, consumers, producers and resources |
 | `js/supports.js` | Version 6 learning supports: Raise my hand, plan and tokens, tools, goals, tests, new missions |
 | `js/audio.js`, `js/clips.js`, `audio/` | Voice clips, music, sound effects |
 | `js/art.js`, `img/`, `icons/` | Hero, villain, and pet art; backgrounds and comics |
