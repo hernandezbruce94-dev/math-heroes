@@ -132,6 +132,7 @@ build=function(s){
   if(!s||typeof s.t!=='string'||s.t[0]!=='e'||!['egs','epc','eres','emake','efill','edef','ematch','ecard'].includes(s.t))return _build7(s);
   const P={spec:s,type:'choice',layout:'',seq:[],text:'',hint:'',hintSeq:null};
   const bad=()=>build(GEN.gs());
+  if(['egs','epc','eres','emake','efill'].includes(s.t)&&!Number.isInteger(s.i))return bad();
   const explain=k=>{P.correctSeq=[textKey('ex_',ECON_EXPLAIN[k])];P.onRight=()=>{const q=$('qbody');if(q&&!q.querySelector('.ecwhy')){const d=document.createElement('div');d.className='ecwhy';d.textContent=ECON_EXPLAIN[k];q.querySelector('.answers')?.after(d);}};};
   const clue=t=>{P.hint=t;P.hintSeq=[textKey('eh_',t)];};
   switch(s.t){
