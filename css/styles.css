@@ -609,3 +609,34 @@ body.market-world .answers.three .ans.txt{font-size:clamp(17px,3.6vw,30px);paddi
   .bubble{top:6px;right:92px;max-width:150px;font-size:12px}
   .bubble::after{right:-12px;top:10px;bottom:auto;border-top-color:transparent;border-left-color:var(--ink)}
 }
+/* ===== v7.4: keep the action buttons of pop-ups on screen on small or sideways phones ===== */
+#planModal .panel,#sceneModal .panel,#helpModal .panel,#toolsModal .panel{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+#planModal .btnrow,#sceneModal .btnrow,#helpModal .btnrow,#toolsModal .btnrow:last-child{position:sticky;bottom:-22px;background:var(--white);padding:8px 0 10px;margin-bottom:-6px;z-index:3;box-shadow:0 -8px 10px -6px #fffdf5}
+@media(max-width:600px),(max-height:620px){
+  .modal{padding:10px 8px}
+  #planModal .panel,#sceneModal .panel,#helpModal .panel{padding:12px 12px 0}
+  #planModal .btnrow,#sceneModal .btnrow,#helpModal .btnrow{bottom:0;margin-bottom:0}
+  #planModal .sc-title,#sceneModal .sc-title,#helpModal .sc-title{font-size:24px}
+  .plansteps{gap:6px;margin:6px 0}
+  .plansteps>div{padding:6px 3px;font-size:14px;border-width:3px;gap:2px}
+  .plansteps span{font-size:26px}
+  .plansteps b{width:24px;height:24px}
+  #planModal h3{font-size:17px;margin:4px 0}
+  .rewardpicks{grid-template-columns:1fr 1fr;gap:6px;margin-top:4px}
+  .rewardpicks .pick{font-size:14px;padding:8px 4px;border-width:3px}
+  #planGo{font-size:32px;padding:6px 30px}
+  .sc-art{min-height:0;margin:4px 0}
+  .sc-art svg{max-height:110px;width:auto}
+  .sc-cap{padding:8px 10px}
+  .sc-cap b{font-size:18px}
+  .sc-cap p{font-size:17px}
+}
+@media(max-height:460px){
+  .sc-art svg{max-height:70px}
+  .plansteps span{display:none}
+  .rewardpicks{grid-template-columns:repeat(4,1fr)}
+  #planGo{font-size:26px;padding:4px 24px}
+}
+@media(max-width:600px),(max-height:620px){
+  #start #goBtn{position:sticky;bottom:14px;z-index:8;font-size:32px;padding:8px 40px}
+}
