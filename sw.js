@@ -24,7 +24,7 @@ self.addEventListener('fetch',e=>{
   if(e.request.method!=='GET')return;
   if(u.pathname.includes('/api/'))return; // never cache sync calls
   if(u.origin!==location.origin){ // fonts: network first, then cache
-    e.respondWith(fetch(e.request).then(r=>{const cl=r.clone();caches.open(VERSION).then(c=>c.put(e.request,cl));return r;}).catch(()=>caches.match(e.request)));return;
+    e.respondWith(fetch(e.request).then(r=>{if(r.ok||r.type==='opaque'){const cl=r.clone();caches.open(VERSION).then(c=>c.put(e.request,cl));}return r;}).catch(()=>caches.match(e.request)));return;
   }
   if(u.pathname.includes('/audio/')){ // voice clips: cache first (each changed clip has its own ?v= so updates still arrive)
     e.respondWith(caches.open(AUDIO_CACHE).then(c=>c.match(e.request).then(m=>m||fetch(e.request).then(r=>{if(r.ok)c.put(e.request,r.clone());return r;}))));return;
@@ -32,7 +32,7 @@ self.addEventListener('fetch',e=>{
   // game files: always ask the network first (skipping the browser cache) so updates arrive, fall back to cache offline
   if(u.pathname.endsWith('/')||/\.(html|js|css|webmanifest)$/.test(u.pathname)){
     const get=e.request.mode==='navigate'?fetch(e.request,{cache:'no-cache'}).catch(()=>fetch(e.request)):fetch(e.request.url,{cache:'no-cache',credentials:'same-origin'});
-    e.respondWith(get.then(r=>{const cl=r.clone();caches.open(VERSION).then(c=>c.put(e.request,cl));return r;}).catch(()=>caches.match(e.request,{ignoreSearch:true})));return;
+    e.respondWith(get.then(r=>{if(r.ok){const cl=r.clone();caches.open(VERSION).then(c=>c.put(e.request,cl));}return r;}).catch(()=>caches.match(e.request,{ignoreSearch:true})));return;
   }
-  e.respondWith(caches.match(e.request).then(m=>m||fetch(e.request).then(r=>{const cl=r.clone();caches.open(VERSION).then(c=>c.put(e.request,cl));return r;})));
+  e.respondWith(caches.match(e.request).then(m=>m||fetch(e.request).then(r=>{if(r.ok){const cl=r.clone();caches.open(VERSION).then(c=>c.put(e.request,cl));}return r;})));
 });
