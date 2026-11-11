@@ -26,7 +26,7 @@ function choiceSpeech(P,c){
   }
 }
 /* Hearing the choices would give the answer away when the skill IS recognizing the word by sight. */
-function readsChoicesOK(P){return P&&P.type==='choice'&&P.spec.t!=='sight';}
+function readsChoicesOK(P){return P&&(P.type==='choice'&&P.spec.t!=='sight'||P.type==='ematch');}
 
 /* ---- awaitable speech: resolves true when finished, false if something else interrupted it ---- */
 function sayWait(seq,text,opts={}){
@@ -57,6 +57,7 @@ const pause=ms=>new Promise(r=>setTimeout(r,ms));
 let choiceRun=0;
 async function readChoices(){
   if(!current||!readsChoicesOK(current))return;
+  if(current.type==='ematch'&&typeof readMatch==='function')return readMatch();
   const run=++choiceRun,P=current;
   const btns=[...$('qbody').querySelectorAll('.answers .ans')];
   for(const b of btns){
@@ -72,7 +73,7 @@ async function readChoices(){
   }
   btns.forEach(b=>b.classList.remove('speaking'));
 }
-function stopChoices(){choiceRun++;document.querySelectorAll('.ans.speaking').forEach(b=>b.classList.remove('speaking'));}
+function stopChoices(){choiceRun++;document.querySelectorAll('.ans.speaking,.ecm.speaking').forEach(b=>b.classList.remove('speaking'));}
 
 /* ================= HELP: a worked example of the same skill ================= */
 const dotsRow=(n,cls='')=>'<div class="dots">'+Array.from({length:n},()=>`<span class="dot ${cls}"></span>`).join('')+'</div>';

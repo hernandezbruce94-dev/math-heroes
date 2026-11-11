@@ -241,7 +241,7 @@ let idleT1=null,idleT2=null;
 function nudgeMs(){const n=+FAM.set.nudgeSec;return ([15,20,30,45,60].includes(n)?n:20)*1000;}
 function armNudge(){clearTimeout(idleT1);clearTimeout(idleT2);
   if(FAM.set.nudge===false||!current||!canRaiseHand(current))return;
-  const P=current,ms=nudgeMs();
+  const P=current,ms=nudgeMs()+(worldOfSpec(P.spec)==='market'?(P.type==='ematch'?25000:12000):0); // give time for everything to be read aloud first
   const ok=()=>current===P&&!G.busy&&!document.querySelector('.modal.open')&&$('battle').classList.contains('active');
   const flag=()=>document.querySelectorAll('#qbody .handbtn').forEach(b=>{b.classList.remove('pulse');void b.offsetWidth;b.classList.add('pulse');});
   idleT1=setTimeout(()=>{if(!ok())return;say(['nudge0'],'Take your time, hero. If you don\'t know, press Raise my hand, and I will explain it.');flag();},ms);

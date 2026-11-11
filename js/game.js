@@ -235,7 +235,7 @@ function nextQ(first){
 }
 async function speakCurrent(){
   if(!current)return;const P=current;stopChoices();
-  const auto=FAM.set.readChoices!==false&&readsChoicesOK(P);
+  const auto=(FAM.set.readChoices!==false||worldOfSpec(P.spec)==='market')&&readsChoicesOK(P);
   // rhyme questions name the choices in the question; when choices are read separately, skip that part
   const seq=auto&&P.spec.t==='rhyme'?P.seq.slice(0,2):P.seq;
   const ok=await sayWait(seq,auto&&P.spec.t==='rhyme'?`Which word rhymes with ${P.spec.w}?`:P.text,{gap:P.gap});
@@ -249,7 +249,7 @@ function renderChoices(){
     if(c.html)b.innerHTML=c.html;else b.textContent=c.v;b.setAttribute('aria-label',String(c.v));b.dataset.v=String(c.v);
     b.onclick=()=>answer(c.v,b);box.appendChild(b);
   });
-  if(lay.includes('two')&&!lay.includes('long'))box.querySelectorAll('.ans').forEach(b=>b.style.fontSize='72px');
+  if(lay.includes('two')&&!lay.includes('long')&&!lay.includes('pic'))box.querySelectorAll('.ans').forEach(b=>b.style.fontSize='72px');
   $('qbody').appendChild(box);
 }
 const PRAISE=['Super job!','Power up!','Heroic!','You got it!','Amazing!','Way to go, hero!','Boom! Correct!'];

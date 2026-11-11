@@ -49,7 +49,7 @@ const MAKE_ITEMS=[
   {p:'corn',e:'🌽',natural:['soil','🟫'],capital:['a tractor','🚜'],human:['the farmer','👩‍🌾']},
   {p:'lemonade',e:'🥤',natural:['lemons','🍋'],capital:['a pitcher','🫖'],human:['the kids','🧒']},
   {p:'a fish dinner',e:'🍽️',natural:['fish','🐟'],capital:['a fishing boat','🚤'],human:['the cook','🧑‍🍳']},
-  {p:'a haircut',e:'💇',natural:['water','💧'],capital:['scissors','✂️'],human:['the barber','💈']},
+  {p:'cookies',e:'🍪',natural:['eggs','🥚'],capital:['a mixer','🥣'],human:['the baker','🧑‍🍳']},
   {p:'apple juice',e:'🧃',natural:['apples','🍎'],capital:['a juice machine','⚙️'],human:['the worker','👷']}
 ];
 /* fill in the blank: [sentence with ___, answer key, family] */
@@ -166,7 +166,7 @@ build=function(s){
   case 'efill':{const x=FILL_ITEMS[s.i];if(!x)return bad();const fam=FAMS[x[2]];
     const others=ECON_ORDER.filter(k=>!fam.includes(k));
     const opts=shuffle([...fam,...(fam.length<3?shuffle(others).slice(0,3-fam.length):[])]);
-    P.ans=x[1];P.layout='txt';P.choices=opts.map(k=>({v:k,html:BLANK_WORD[k]}));
+    P.ans=x[1];P.layout='txt three';P.choices=opts.map(k=>({v:k,html:BLANK_WORD[k]}));
     const parts=x[0].split('___');
     P.html=`<div class="prompt">Fill in the blank</div><div class="qtext big ecfill">${parts[0]}<span class="ecblank" id="ecBlank">?</span>${parts[1]||''}</div><button class="listen" data-hear>HEAR IT</button>`;
     P.seq=['efill_q',textKey('ef_',x[0].replace('___','blank'))];P.gap=.3;P.text=`Fill in the blank. ${x[0].replace('___','blank')}`;P.label=`Fill in: ${x[0]}`;
@@ -179,7 +179,7 @@ build=function(s){
     if(s.r){P.layout='long';P.choices=opts.map(o=>({v:o,html:ECON_TERMS[o].m}));
       P.html=`<div class="prompt">What does it mean?</div>${ecPic(T.e)}<div class="problem word ecterm">${T.w}</div><button class="listen" data-hear>HEAR IT</button>`;
       P.seq=['edef_q2',textKey('ew_',T.w)];P.text=`What does ${T.w} mean?`;P.label=`Meaning of ${T.w}`;}
-    else{P.layout='txt';P.choices=opts.map(o=>({v:o,html:ECON_TERMS[o].w}));
+    else{P.layout='txt three';P.choices=opts.map(o=>({v:o,html:ECON_TERMS[o].w}));
       P.html=`<div class="prompt">Which word matches?</div><div class="qtext big">${T.m}</div><button class="listen" data-hear>HEAR IT</button>`;
       P.seq=['edef_q',textKey('em2_',T.m)];P.gap=.3;P.text=`Which word matches? ${T.m}.`;P.label=`Word for: ${T.m}`;}
     clue(T.d);P.correctSeq=[textKey('ew_',T.w),textKey('ed_',T.d)];break;}
@@ -246,3 +246,18 @@ function econLearnList(){return ECON_ORDER.map((k,i)=>({t:'ecard',i}));}
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.world.market');if(!b)return;
   preload(['egs_q','epc_q','eres_q','efill_q','edef_q','edef_q2','ematch_q','ematch_yes','ematch_no','ematch_ok','ecard_ok','plan_q',
     ...ECON_ORDER.map(k=>textKey('ew_',ECON_TERMS[k].w)),...['good','service','producer','consumer'].map(v=>textKey('ch_',v)),...['Natural','Capital','Human'].map(v=>textKey('ch_',v))]);},true);
+
+/* read every word and meaning in the matching game, lighting each one up as it is read */
+async function readMatch(){
+  const P=current;if(!P||P.type!=='ematch')return;const run=++choiceRun;
+  const items=[...$('qbody').querySelectorAll('.ecw'),...$('qbody').querySelectorAll('.ecd')];
+  for(const b of items){
+    if(run!==choiceRun||current!==P||G.busy)break;
+    if(b.disabled)continue;
+    const T=ECON_TERMS[b.dataset.k];const isW=b.classList.contains('ecw');
+    b.classList.add('speaking');
+    const ok=await sayWait([textKey(isW?'ew_':'em2_',isW?T.w:T.m)],isW?T.w:T.m);
+    b.classList.remove('speaking');
+    if(!ok)break;await pause(200);
+  }
+}
