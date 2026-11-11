@@ -199,7 +199,8 @@ function genSpec(){
 function nextQ(first){
   if(G.q>=G.total)return winGame();
   if(G.tp)G.tp.turn=G.q%2;
-  const spec=genSpec();current=build(spec);G.tries=0;G.busy=false;
+  let spec;try{spec=genSpec();current=build(spec);if(!current||!current.html)throw 0;}catch(e){spec=G.world==='market'?GEN.gs():GEN.mix(1);current=build(spec);}
+  G.tries=0;G.busy=false;
   if(G.mixed){const w=worldOfSpec(spec);if(w!==G.world){G.world=w;setVillain(w,false);}}
   const bossRound=G.q===G.total-1&&!G.isBoss&&G.kind!=='read';
   $('qpanel').classList.toggle('boss',bossRound||G.isBoss);

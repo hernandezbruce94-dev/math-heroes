@@ -241,3 +241,8 @@ function wireEcon(){
 
 /* ---------- Learn the Words mission is a list of word cards ---------- */
 function econLearnList(){return ECON_ORDER.map((k,i)=>({t:'ecard',i}));}
+
+/* warm up the Market Town voice clips as soon as the world is picked, so questions speak right away */
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('.world.market');if(!b)return;
+  preload(['egs_q','epc_q','eres_q','efill_q','edef_q','edef_q2','ematch_q','ematch_yes','ematch_no','ematch_ok','ecard_ok','plan_q',
+    ...ECON_ORDER.map(k=>textKey('ew_',ECON_TERMS[k].w)),...['good','service','producer','consumer'].map(v=>textKey('ch_',v)),...['Natural','Capital','Human'].map(v=>textKey('ch_',v))]);},true);

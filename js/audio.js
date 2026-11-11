@@ -7,6 +7,7 @@ let actx=null, masterGain=null, musicGain=null, voiceGain=null;
 const synth=('speechSynthesis' in window)?window.speechSynthesis:null;
 const HAS_CLIP=typeof CLIP_KEYS!=='undefined'?new Set(CLIP_KEYS):new Set();
 const clipCache=new Map();
+const clipURL=k=>'audio/'+k+'.mp3'+(typeof CLIP_VER!=='undefined'&&CLIP_VER[k]?'?v='+CLIP_VER[k]:'');
 let playing=[], speakToken=0;
 
 function getCtx(){
@@ -33,7 +34,7 @@ function unlockAudio(){
 
 async function loadClip(k){
   if(clipCache.has(k))return clipCache.get(k);
-  const p=fetch('audio/'+k+'.mp3').then(r=>{if(!r.ok)throw 0;return r.arrayBuffer()})
+  const p=fetch(clipURL(k)).then(r=>{if(!r.ok)throw 0;return r.arrayBuffer()})
     .then(b=>new Promise((res,rej)=>getCtx().decodeAudioData(b,res,rej))).catch(()=>null);
   clipCache.set(k,p);return p;
 }
